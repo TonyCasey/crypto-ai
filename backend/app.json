@@ -1,0 +1,52 @@
+{
+  "name": "cryptobot-backend",
+  "description": "CryptoBot AI Trading Platform Backend",
+  "repository": "https://github.com/TonyCasey/crypto-ai",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "heroku", "cryptocurrency", "trading", "ai"],
+  "image": "heroku/nodejs",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:essential-0"
+    },
+    {
+      "plan": "heroku-redis:mini"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "description": "Environment",
+      "value": "production"
+    },
+    "JWT_SECRET": {
+      "description": "Secret key for JWT tokens",
+      "generator": "secret"
+    },
+    "SESSION_SECRET": {
+      "description": "Secret key for sessions",
+      "generator": "secret"
+    },
+    "FRONTEND_URL": {
+      "description": "Frontend URL for CORS",
+      "value": "https://your-app.vercel.app"
+    },
+    "PAPER_TRADING": {
+      "description": "Enable paper trading mode",
+      "value": "true"
+    }
+  },
+  "scripts": {
+    "postdeploy": "npm run db:push"
+  }
+}

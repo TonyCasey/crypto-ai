@@ -1,0 +1,339 @@
+// Prisma schema file for CryptoBot
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  exchangeConfigs ExchangeConfig[]
+  strategies      TradingStrategy[]
+  portfolios      Portfolio[]
+
+  @@map("users")
+}
+
+model ExchangeConfig {
+  id          String      @id @default(cuid())
+  name        String
+  type        ExchangeType
+  isActive    Boolean     @default(true)
+  apiKey      String
+  apiSecret   String
+  passphrase  String?
+  sandbox     Boolean     @default(false)
+  userId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+  positions Position[]
+
+  @@unique([userId, type])
+  @@map("exchange_configs")
+}
+
+model TradingPair {
+  id              String   @id @default(cuid())
+  symbol          String   @unique
+  baseCurrency    String
+  quoteCurrency   String
+  minOrderSize    Decimal
+  maxOrderSize    Decimal
+  priceIncrement  Decimal
+  sizeIncrement   Decimal
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  candles     Candle[]
+  orders      Order[]
+  positions   Position[]
+  indicators  TechnicalIndicator[]
+
+  @@map("trading_pairs")
+}
+
+model Candle {
+  id             String    @id @default(cuid())
+  symbol         String
+  timeFrame      String
+  timestamp      DateTime
+  open           Decimal
+  high           Decimal
+  low            Decimal
+  close          Decimal
+  volume         Decimal
+  createdAt      DateTime  @default(now())
+
+  tradingPair    TradingPair @relation(fields: [symbol], references: [symbol])
+
+  @@unique([symbol, timeFrame, timestamp])
+  @@map("candles")
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  exchangeOrderId   String
+  clientOrderId     String?
+  exchangeConfigId  String
+  symbol            String
+  side              OrderSide
+  type              OrderType
+  size              Decimal
+  price             Decimal?
+  stopPrice         Decimal?
+  status            OrderStatus
+  filledSize        Decimal     @default(0)
+  averageFillPrice  Decimal?
+  fees              Decimal     @default(0)
+  timeInForce       String      @default("GTC")
+  expiryTime        DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  exchangeConfig    ExchangeConfig @relation(fields: [exchangeConfigId], references: [id])
+  tradingPair       TradingPair    @relation(fields: [symbol], references: [symbol])
+  fills             OrderFill[]
+
+  @@unique([exchangeOrderId, exchangeConfigId])
+  @@map("orders")
+}
+
+model OrderFill {
+  id          String    @id @default(cuid())
+  orderId     String
+  tradeId     String
+  price       Decimal
+  size        Decimal
+  fees        Decimal
+  liquidity   String    // 'maker' or 'taker'
+  timestamp   DateTime
+  createdAt   DateTime  @default(now())
+
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([tradeId, orderId])
+  @@map("order_fills")
+}
+
+model Position {
+  id                  String   @id @default(cuid())
+  exchangeConfigId    String
+  symbol              String
+  side                String   // 'long' or 'short'
+  size                Decimal
+  averageEntryPrice   Decimal
+  currentPrice        Decimal
+  unrealizedPnL       Decimal  @default(0)
+  realizedPnL         Decimal  @default(0)
+  totalPnL            Decimal  @default(0)
+  marginUsed          Decimal  @default(0)
+  liquidationPrice    Decimal?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  exchangeConfig      ExchangeConfig @relation(fields: [exchangeConfigId], references: [id])
+  tradingPair         TradingPair    @relation(fields: [symbol], references: [symbol])
+
+  @@unique([exchangeConfigId, symbol])
+  @@map("positions")
+}
+
+model Portfolio {
+  id                String   @id @default(cuid())
+  userId            String
+  totalValue        Decimal
+  availableBalance  Decimal
+  lockedBalance     Decimal
+  unrealizedPnL     Decimal  @default(0)
+  realizedPnL       Decimal  @default(0)
+  dailyPnL          Decimal  @default(0)
+  totalReturn       Decimal  @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balances          Balance[]
+
+  @@map("portfolios")
+}
+
+model Balance {
+  id          String   @id @default(cuid())
+  portfolioId String
+  currency    String
+  total       Decimal
+  available   Decimal
+  locked      Decimal  @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, currency])
+  @@map("balances")
+}
+
+model TradingStrategy {
+  id              String               @id @default(cuid())
+  name            String
+  type            TradingStrategyType
+  description     String
+  isActive        Boolean              @default(true)
+  symbols         String[]
+  timeFrame       String
+  parameters      Json
+  riskParameters  Json
+  userId          String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  signals         TradingSignal[]
+  executions      StrategyExecution[]
+  backtests       BacktestResult[]
+
+  @@map("trading_strategies")
+}
+
+model TradingSignal {
+  id               String   @id @default(cuid())
+  strategyId       String
+  symbol           String
+  side             OrderSide
+  strength         Float
+  confidence       Float
+  reason           String
+  indicatorValues  Json
+  targetPrice      Decimal?
+  stopLoss         Decimal?
+  takeProfit       Decimal?
+  timestamp        DateTime @default(now())
+  createdAt        DateTime @default(now())
+
+  strategy         TradingStrategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  executions       StrategyExecution[]
+
+  @@map("trading_signals")
+}
+
+model StrategyExecution {
+  id            String              @id @default(cuid())
+  strategyId    String
+  signalId      String
+  orderData     Json
+  executionTime DateTime
+  status        ExecutionStatus
+  error         String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  strategy      TradingStrategy     @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  signal        TradingSignal       @relation(fields: [signalId], references: [id], onDelete: Cascade)
+
+  @@map("strategy_executions")
+}
+
+model BacktestResult {
+  id                String   @id @default(cuid())
+  strategyId        String
+  symbol            String
+  startDate         DateTime
+  endDate           DateTime
+  initialCapital    Decimal
+  finalCapital      Decimal
+  totalReturn       Float
+  annualizedReturn  Float
+  sharpeRatio       Float
+  maxDrawdown       Float
+  totalTrades       Int
+  winningTrades     Int
+  losingTrades      Int
+  winRate           Float
+  trades            Json
+  createdAt         DateTime @default(now())
+
+  strategy          TradingStrategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@map("backtest_results")
+}
+
+model TechnicalIndicator {
+  id          String      @id @default(cuid())
+  symbol      String
+  type        String      // IndicatorType enum as string
+  timeFrame   String
+  timestamp   DateTime
+  value       Decimal
+  parameters  Json
+  createdAt   DateTime    @default(now())
+
+  tradingPair TradingPair @relation(fields: [symbol], references: [symbol])
+
+  @@unique([symbol, type, timeFrame, timestamp])
+  @@map("technical_indicators")
+}
+
+// Enums
+enum ExchangeType {
+  COINBASE_PRO
+  BITTREX
+  BINANCE
+  KRAKEN
+  SIMULATOR
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+  STOP
+  STOP_LIMIT
+}
+
+enum OrderStatus {
+  PENDING
+  OPEN
+  FILLED
+  CANCELLED
+  REJECTED
+  EXPIRED
+}
+
+enum TradingStrategyType {
+  SIMPLE_MOVING_AVERAGE
+  RSI_OVERSOLD_OVERBOUGHT
+  MACD_CROSSOVER
+  BOLLINGER_BANDS_SQUEEZE
+  MEAN_REVERSION
+  MOMENTUM
+  CUSTOM
+}
+
+enum ExecutionStatus {
+  PENDING
+  EXECUTED
+  FAILED
+  CANCELLED
+}

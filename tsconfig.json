@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "incremental": true,
+    "paths": {
+      "@cryptobot/types": ["./packages/@cryptobot/types/src"],
+      "@cryptobot/database": ["./packages/@cryptobot/database/src"],
+      "@cryptobot/indicators": ["./packages/@cryptobot/indicators/src"],
+      "@cryptobot/exchanges": ["./packages/@cryptobot/exchanges/src"],
+      "@cryptobot/trading": ["./packages/@cryptobot/trading/src"]
+    }
+  },
+  "include": [],
+  "exclude": ["node_modules", "dist", "build"],
+  "references": [
+    { "path": "./packages/@cryptobot/types" },
+    { "path": "./packages/@cryptobot/database" },
+    { "path": "./packages/@cryptobot/indicators" },
+    { "path": "./packages/@cryptobot/exchanges" },
+    { "path": "./packages/@cryptobot/trading" },
+    { "path": "./backend" },
+    { "path": "./frontend" }
+  ]
+}
