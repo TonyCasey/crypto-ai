@@ -6,9 +6,14 @@
 - [x] Configure TypeScript, ESLint, and Prettier
 - [x] Setup development and build scripts
 - [x] Create basic monorepo structure (frontend, backend, packages)
+- [x] Move todo.md to docs folder
+- [x] Fix circular build script configuration (switched to npm-based scripts)
 
 ## 🚧 In Progress
-- [ ] Commit workspace configuration changes
+- [x] Identify package build issues:
+  - Database package: Prisma client generation issues
+  - Indicators package: TypeScript strict null check violations (35+ errors)
+  - Need to investigate exchanges and trading packages
 
 ## 📋 Next Tasks
 
