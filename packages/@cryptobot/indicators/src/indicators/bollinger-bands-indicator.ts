@@ -48,39 +48,43 @@ export class BollingerBandsIndicator extends BaseIndicator {
     for (let i = 0; i < smaValues.length; i++) {
       const inputIndex = i + this.period - 1;
       const currentPrice = closePrices[inputIndex];
-      
       const middleBand = smaValues[i];
-      const upperBand = middleBand + (stdDevValues[i] * this.standardDeviation);
-      const lowerBand = middleBand - (stdDevValues[i] * this.standardDeviation);
+      const stdDev = stdDevValues[i];
+      const inputData = inputs[inputIndex];
       
-      const bandwidth = ((upperBand - lowerBand) / middleBand) * 100;
-      const squeeze = bandwidth < 10; // Squeeze when bandwidth is less than 10%
-      
-      let position: 'above_upper' | 'below_lower' | 'inside';
-      if (currentPrice > upperBand) {
-        position = 'above_upper';
-      } else if (currentPrice < lowerBand) {
-        position = 'below_lower';
-      } else {
-        position = 'inside';
-      }
+      if (middleBand !== undefined && stdDev !== undefined && currentPrice !== undefined && inputData) {
+        const upperBand = middleBand + (stdDev * this.standardDeviation);
+        const lowerBand = middleBand - (stdDev * this.standardDeviation);
+        
+        const bandwidth = ((upperBand - lowerBand) / middleBand) * 100;
+        const squeeze = bandwidth < 10; // Squeeze when bandwidth is less than 10%
+        
+        let position: 'above_upper' | 'below_lower' | 'inside';
+        if (currentPrice > upperBand) {
+          position = 'above_upper';
+        } else if (currentPrice < lowerBand) {
+          position = 'below_lower';
+        } else {
+          position = 'inside';
+        }
 
-      this.results.push(
-        this.createResult(
-          inputs[inputIndex].timestamp,
-          MathUtils.roundToDecimalPlaces(middleBand, 8), // Use middle band as main value
-          {
-            upperBand: MathUtils.roundToDecimalPlaces(upperBand, 8),
-            middleBand: MathUtils.roundToDecimalPlaces(middleBand, 8),
-            lowerBand: MathUtils.roundToDecimalPlaces(lowerBand, 8),
-            period: this.period,
-            standardDeviation: this.standardDeviation,
-            squeeze,
-            position,
-            bandwidth: MathUtils.roundToDecimalPlaces(bandwidth, 2),
-          }
-        ) as BollingerBandsResult
-      );
+        this.results.push(
+          this.createResult(
+            inputData.timestamp,
+            MathUtils.roundToDecimalPlaces(middleBand, 8), // Use middle band as main value
+            {
+              upperBand: MathUtils.roundToDecimalPlaces(upperBand, 8),
+              middleBand: MathUtils.roundToDecimalPlaces(middleBand, 8),
+              lowerBand: MathUtils.roundToDecimalPlaces(lowerBand, 8),
+              period: this.period,
+              standardDeviation: this.standardDeviation,
+              squeeze,
+              position,
+              bandwidth: MathUtils.roundToDecimalPlaces(bandwidth, 2),
+            }
+          ) as BollingerBandsResult
+        );
+      }
     }
 
     return this.getResults();

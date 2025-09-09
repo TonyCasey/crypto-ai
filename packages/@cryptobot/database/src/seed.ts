@@ -1,4 +1,4 @@
-import { PrismaClient, ExchangeType, TradingStrategyType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { Decimal } from 'decimal.js';
 
 const prisma = new PrismaClient();
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
   const exchangeConfig = await prisma.exchangeConfig.create({
     data: {
       name: 'Coinbase Pro Demo',
-      type: ExchangeType.COINBASE_PRO,
+      type: 'COINBASE_PRO',
       isActive: true,
       apiKey: 'demo_api_key',
       apiSecret: 'demo_api_secret',
@@ -67,7 +67,7 @@ async function main(): Promise<void> {
   const strategy = await prisma.tradingStrategy.create({
     data: {
       name: 'RSI Oversold/Overbought Strategy',
-      type: TradingStrategyType.RSI_OVERSOLD_OVERBOUGHT,
+      type: 'RSI_OVERSOLD_OVERBOUGHT',
       description: 'Buy when RSI is oversold (<30), sell when overbought (>70)',
       isActive: true,
       symbols: ['BTC-USD', 'ETH-USD'],

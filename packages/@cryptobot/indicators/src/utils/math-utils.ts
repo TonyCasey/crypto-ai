@@ -26,8 +26,12 @@ export class MathUtils {
     results.push(firstSMA);
     
     for (let i = period; i < values.length; i++) {
-      const ema = (values[i] - results[results.length - 1]) * multiplier + results[results.length - 1];
-      results.push(ema);
+      const currentValue = values[i];
+      const lastResult = results[results.length - 1];
+      if (currentValue !== undefined && lastResult !== undefined) {
+        const ema = (currentValue - lastResult) * multiplier + lastResult;
+        results.push(ema);
+      }
     }
     
     return results;
@@ -56,10 +60,16 @@ export class MathUtils {
     const results: number[] = [];
     
     for (let i = 1; i < high.length; i++) {
-      const tr1 = high[i] - low[i];
-      const tr2 = Math.abs(high[i] - close[i - 1]);
-      const tr3 = Math.abs(low[i] - close[i - 1]);
-      results.push(Math.max(tr1, tr2, tr3));
+      const highValue = high[i];
+      const lowValue = low[i];
+      const prevClose = close[i - 1];
+      
+      if (highValue !== undefined && lowValue !== undefined && prevClose !== undefined) {
+        const tr1 = highValue - lowValue;
+        const tr2 = Math.abs(highValue - prevClose);
+        const tr3 = Math.abs(lowValue - prevClose);
+        results.push(Math.max(tr1, tr2, tr3));
+      }
     }
     
     return results;

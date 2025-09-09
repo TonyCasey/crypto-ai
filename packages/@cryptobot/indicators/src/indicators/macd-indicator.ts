@@ -55,8 +55,11 @@ export class MACDIndicator extends BaseIndicator {
     
     for (let i = 0; i < slowEMA.length; i++) {
       const fastIndex = i + startIndex;
-      if (fastIndex < fastEMA.length) {
-        macdLine.push(fastEMA[fastIndex] - slowEMA[i]);
+      const fastValue = fastEMA[fastIndex];
+      const slowValue = slowEMA[i];
+      
+      if (fastIndex < fastEMA.length && fastValue !== undefined && slowValue !== undefined) {
+        macdLine.push(fastValue - slowValue);
       }
     }
 
@@ -69,7 +72,12 @@ export class MACDIndicator extends BaseIndicator {
     
     for (let i = 0; i < signalLine.length; i++) {
       const macdIndex = i + macdStartIndex;
-      histogram.push(macdLine[macdIndex] - signalLine[i]);
+      const macdValue = macdLine[macdIndex];
+      const signalValue = signalLine[i];
+      
+      if (macdValue !== undefined && signalValue !== undefined) {
+        histogram.push(macdValue - signalValue);
+      }
     }
 
     // Build results
@@ -79,37 +87,45 @@ export class MACDIndicator extends BaseIndicator {
     for (let i = 0; i < histogram.length; i++) {
       const inputIndex = resultStartIndex + i;
       const macdIndex = macdStartIndex + i;
+      const rawMacdValue = macdLine[macdIndex];
+      const rawSignalValue = signalLine[i];
+      const rawHistogramValue = histogram[i];
+      const inputData = inputs[inputIndex];
       
-      const macdValue = MathUtils.roundToDecimalPlaces(macdLine[macdIndex], 8);
-      const signalValue = MathUtils.roundToDecimalPlaces(signalLine[i], 8);
-      const histogramValue = MathUtils.roundToDecimalPlaces(histogram[i], 8);
+      if (rawMacdValue !== undefined && rawSignalValue !== undefined && rawHistogramValue !== undefined && inputData) {
+        const macdValue = MathUtils.roundToDecimalPlaces(rawMacdValue, 8);
+        const signalValue = MathUtils.roundToDecimalPlaces(rawSignalValue, 8);
+        const histogramValue = MathUtils.roundToDecimalPlaces(rawHistogramValue, 8);
 
-      // Determine crossover signal
-      let crossover: 'bullish' | 'bearish' | null = null;
-      if (i > 0) {
-        const prevHistogram = histogram[i - 1];
-        if (prevHistogram <= 0 && histogramValue > 0) {
-          crossover = 'bullish';
-        } else if (prevHistogram >= 0 && histogramValue < 0) {
-          crossover = 'bearish';
-        }
-      }
-
-      this.results.push(
-        this.createResult(
-          inputs[inputIndex].timestamp,
-          histogramValue, // Use histogram as main value
-          {
-            macd: macdValue,
-            signal: signalValue,
-            histogram: histogramValue,
-            fastPeriod: this.fastPeriod,
-            slowPeriod: this.slowPeriod,
-            signalPeriod: this.signalPeriod,
-            crossover,
+        // Determine crossover signal
+        let crossover: 'bullish' | 'bearish' | null = null;
+        if (i > 0) {
+          const prevHistogram = histogram[i - 1];
+          if (prevHistogram !== undefined) {
+            if (prevHistogram <= 0 && histogramValue > 0) {
+              crossover = 'bullish';
+            } else if (prevHistogram >= 0 && histogramValue < 0) {
+              crossover = 'bearish';
+            }
           }
-        ) as MACDResult
-      );
+        }
+
+        this.results.push(
+          this.createResult(
+            inputData.timestamp,
+            histogramValue, // Use histogram as main value
+            {
+              macd: macdValue,
+              signal: signalValue,
+              histogram: histogramValue,
+              fastPeriod: this.fastPeriod,
+              slowPeriod: this.slowPeriod,
+              signalPeriod: this.signalPeriod,
+              crossover,
+            }
+          ) as MACDResult
+        );
+      }
     }
 
     return this.getResults();

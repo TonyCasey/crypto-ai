@@ -12,7 +12,7 @@ export interface IndicatorInput {
 export interface IndicatorResult {
   timestamp: Date;
   value: number;
-  metadata?: Record<string, any>;
+  metadata: Record<string, any>;
 }
 
 export abstract class BaseIndicator {
@@ -57,7 +57,8 @@ export abstract class BaseIndicator {
   }
 
   getLatestResult(): IndicatorResult | null {
-    return this.results.length > 0 ? this.results[this.results.length - 1] : null;
+    const lastResult = this.results[this.results.length - 1];
+    return lastResult ?? null;
   }
 
   protected validateInputs(inputs: IndicatorInput[], minLength: number = 1): void {
@@ -66,7 +67,7 @@ export abstract class BaseIndicator {
     }
   }
 
-  protected createResult(timestamp: Date, value: number, metadata?: Record<string, any>): IndicatorResult {
+  protected createResult(timestamp: Date, value: number, metadata: Record<string, any> = {}): IndicatorResult {
     return {
       timestamp,
       value,

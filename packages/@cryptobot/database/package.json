@@ -17,7 +17,7 @@
     "db:seed": "tsx src/seed.ts"
   },
   "dependencies": {
-    "@cryptobot/types": "workspace:*",
+    "@cryptobot/types": "file:../types",
     "@prisma/client": "^5.8.1",
     "decimal.js": "^10.4.3"
   },

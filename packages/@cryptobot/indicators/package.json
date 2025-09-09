@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@cryptobot/types": "workspace:*",
+    "@cryptobot/types": "file:../types",
     "decimal.js": "^10.4.3"
   },
   "devDependencies": {

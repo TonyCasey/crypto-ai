@@ -27,16 +27,21 @@ export class SMAIndicator extends BaseIndicator {
     this.results = [];
     for (let i = 0; i < smaValues.length; i++) {
       const inputIndex = i + this.period - 1;
-      this.results.push(
-        this.createResult(
-          inputs[inputIndex].timestamp,
-          MathUtils.roundToDecimalPlaces(smaValues[i], 8),
-          {
-            period: this.period,
-            source: 'close',
-          }
-        )
-      );
+      const smaValue = smaValues[i];
+      const inputData = inputs[inputIndex];
+      
+      if (smaValue !== undefined && inputData) {
+        this.results.push(
+          this.createResult(
+            inputData.timestamp,
+            MathUtils.roundToDecimalPlaces(smaValue, 8),
+            {
+              period: this.period,
+              source: 'close',
+            }
+          )
+        );
+      }
     }
 
     return this.getResults();

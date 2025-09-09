@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@cryptobot/types": "workspace:*",
+    "@cryptobot/types": "file:../types",
     "axios": "^1.6.5",
     "ws": "^8.16.0",
     "crypto": "^1.0.1",

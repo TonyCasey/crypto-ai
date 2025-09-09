@@ -34,23 +34,26 @@ export class ATRIndicator extends BaseIndicator {
     this.results = [];
     for (let i = 0; i < atrValues.length; i++) {
       const inputIndex = i + this.period;
-      const atrValue = MathUtils.roundToDecimalPlaces(atrValues[i], 8);
-      
-      // Calculate ATR as percentage of current price
+      const rawAtrValue = atrValues[i];
       const currentPrice = closePrices[inputIndex];
-      const atrPercentage = (atrValue / currentPrice) * 100;
+      const inputData = inputs[inputIndex];
+      
+      if (rawAtrValue !== undefined && currentPrice !== undefined && inputData) {
+        const atrValue = MathUtils.roundToDecimalPlaces(rawAtrValue, 8);
+        const atrPercentage = (atrValue / currentPrice) * 100;
 
-      this.results.push(
-        this.createResult(
-          inputs[inputIndex].timestamp,
-          atrValue,
-          {
-            period: this.period,
-            atrPercentage: MathUtils.roundToDecimalPlaces(atrPercentage, 2),
-            volatility: this.getVolatilityLevel(atrPercentage),
-          }
-        )
-      );
+        this.results.push(
+          this.createResult(
+            inputData.timestamp,
+            atrValue,
+            {
+              period: this.period,
+              atrPercentage: MathUtils.roundToDecimalPlaces(atrPercentage, 2),
+              volatility: this.getVolatilityLevel(atrPercentage),
+            }
+          )
+        );
+      }
     }
 
     return this.getResults();

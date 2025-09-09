@@ -27,17 +27,22 @@ export class EMAIndicator extends BaseIndicator {
     this.results = [];
     for (let i = 0; i < emaValues.length; i++) {
       const inputIndex = i + this.period - 1;
-      this.results.push(
-        this.createResult(
-          inputs[inputIndex].timestamp,
-          MathUtils.roundToDecimalPlaces(emaValues[i], 8),
-          {
-            period: this.period,
-            source: 'close',
-            multiplier: 2 / (this.period + 1),
-          }
-        )
-      );
+      const emaValue = emaValues[i];
+      const inputData = inputs[inputIndex];
+      
+      if (emaValue !== undefined && inputData) {
+        this.results.push(
+          this.createResult(
+            inputData.timestamp,
+            MathUtils.roundToDecimalPlaces(emaValue, 8),
+            {
+              period: this.period,
+              source: 'close',
+              multiplier: 2 / (this.period + 1),
+            }
+          )
+        );
+      }
     }
 
     return this.getResults();

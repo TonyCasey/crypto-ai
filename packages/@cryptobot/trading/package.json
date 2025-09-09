@@ -12,9 +12,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@cryptobot/types": "workspace:*",
-    "@cryptobot/indicators": "workspace:*",
-    "@cryptobot/exchanges": "workspace:*",
+    "@cryptobot/types": "file:../types",
+    "@cryptobot/indicators": "file:../indicators",
+    "@cryptobot/exchanges": "file:../exchanges",
     "decimal.js": "^10.4.3"
   },
   "devDependencies": {

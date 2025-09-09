@@ -33,20 +33,25 @@ export class RSIIndicator extends BaseIndicator {
     this.results = [];
     for (let i = 0; i < rsiValues.length; i++) {
       const inputIndex = i + this.period;
-      const rsiValue = MathUtils.roundToDecimalPlaces(rsiValues[i], 2);
+      const rawRsiValue = rsiValues[i];
+      const inputData = inputs[inputIndex];
       
-      this.results.push(
-        this.createResult(
-          inputs[inputIndex].timestamp,
-          rsiValue,
-          {
-            period: this.period,
-            overbought: this.overbought,
-            oversold: this.oversold,
-            signal: this.getSignal(rsiValue),
-          }
-        )
-      );
+      if (rawRsiValue !== undefined && inputData) {
+        const rsiValue = MathUtils.roundToDecimalPlaces(rawRsiValue, 2);
+        
+        this.results.push(
+          this.createResult(
+            inputData.timestamp,
+            rsiValue,
+            {
+              period: this.period,
+              overbought: this.overbought,
+              oversold: this.oversold,
+              signal: this.getSignal(rsiValue),
+            }
+          )
+        );
+      }
     }
 
     return this.getResults();
@@ -60,9 +65,14 @@ export class RSIIndicator extends BaseIndicator {
 
     // Calculate price changes
     for (let i = 1; i < prices.length; i++) {
-      const change = prices[i] - prices[i - 1];
-      gains.push(change > 0 ? change : 0);
-      losses.push(change < 0 ? Math.abs(change) : 0);
+      const currentPrice = prices[i];
+      const previousPrice = prices[i - 1];
+      
+      if (currentPrice !== undefined && previousPrice !== undefined) {
+        const change = currentPrice - previousPrice;
+        gains.push(change > 0 ? change : 0);
+        losses.push(change < 0 ? Math.abs(change) : 0);
+      }
     }
 
     // Calculate average gain and loss using EMA
@@ -71,12 +81,17 @@ export class RSIIndicator extends BaseIndicator {
 
     const rsiValues: number[] = [];
     for (let i = 0; i < avgGains.length; i++) {
-      if (avgLosses[i] === 0) {
-        rsiValues.push(100);
-      } else {
-        const rs = avgGains[i] / avgLosses[i];
-        const rsi = 100 - (100 / (1 + rs));
-        rsiValues.push(MathUtils.clamp(rsi, 0, 100));
+      const avgGain = avgGains[i];
+      const avgLoss = avgLosses[i];
+      
+      if (avgGain !== undefined && avgLoss !== undefined) {
+        if (avgLoss === 0) {
+          rsiValues.push(100);
+        } else {
+          const rs = avgGain / avgLoss;
+          const rsi = 100 - (100 / (1 + rs));
+          rsiValues.push(MathUtils.clamp(rsi, 0, 100));
+        }
       }
     }
 
