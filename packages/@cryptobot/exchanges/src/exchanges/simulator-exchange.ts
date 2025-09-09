@@ -14,6 +14,7 @@ import {
   ApiResponse,
   OrderSide,
   OrderStatus,
+  OrderType,
   TimeFrame,
 } from '@cryptobot/types';
 import { BaseExchange } from '../base/base-exchange';
@@ -76,10 +77,10 @@ export class SimulatorExchange extends BaseExchange {
         symbol: 'BTC-USD',
         baseCurrency: 'BTC',
         quoteCurrency: 'USD',
-        minOrderSize: { value: '0.001', precision: 8 },
-        maxOrderSize: { value: '1000', precision: 8 },
-        priceIncrement: { value: '0.01', precision: 2 },
-        sizeIncrement: { value: '0.00000001', precision: 8 },
+        minOrderSize: '0.001',
+        maxOrderSize: '1000',
+        priceIncrement: '0.01',
+        sizeIncrement: '0.00000001',
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -89,10 +90,10 @@ export class SimulatorExchange extends BaseExchange {
         symbol: 'ETH-USD',
         baseCurrency: 'ETH',
         quoteCurrency: 'USD',
-        minOrderSize: { value: '0.01', precision: 8 },
-        maxOrderSize: { value: '1000', precision: 8 },
-        priceIncrement: { value: '0.01', precision: 2 },
-        sizeIncrement: { value: '0.00000001', precision: 8 },
+        minOrderSize: '0.01',
+        maxOrderSize: '1000',
+        priceIncrement: '0.01',
+        sizeIncrement: '0.00000001',
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -113,13 +114,13 @@ export class SimulatorExchange extends BaseExchange {
 
     const ticker: Ticker = {
       symbol,
-      price: { value: price.toFixed(2), currency: symbol.split('-')[1] },
-      bidPrice: { value: (price - spread/2).toFixed(2), currency: symbol.split('-')[1] },
-      askPrice: { value: (price + spread/2).toFixed(2), currency: symbol.split('-')[1] },
-      volume24h: { value: data.volume.toFixed(2), currency: symbol.split('-')[0] },
+      price: { value: price.toFixed(2), currency: symbol.split('-')[1] || 'USD' || 'USD' },
+      bidPrice: { value: (price - spread/2).toFixed(2), currency: symbol.split('-')[1] || 'USD' || 'USD' },
+      askPrice: { value: (price + spread/2).toFixed(2), currency: symbol.split('-')[1] || 'USD' || 'USD' },
+      volume24h: { value: data.volume.toFixed(2), currency: symbol.split('-')[0] || 'BTC' || 'BTC' },
       change24h: { value: (Math.random() - 0.5) * 10 }, // Random change for simulation
-      high24h: { value: (price * 1.05).toFixed(2), currency: symbol.split('-')[1] },
-      low24h: { value: (price * 0.95).toFixed(2), currency: symbol.split('-')[1] },
+      high24h: { value: (price * 1.05).toFixed(2), currency: symbol.split('-')[1] || 'USD' || 'USD' },
+      low24h: { value: (price * 0.95).toFixed(2), currency: symbol.split('-')[1] || 'USD' || 'USD' },
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -135,8 +136,8 @@ export class SimulatorExchange extends BaseExchange {
 
     const price = data.price;
     const spread = price * 0.001;
-    const quoteCurrency = symbol.split('-')[1];
-    const baseCurrency = symbol.split('-')[0];
+    const quoteCurrency = symbol.split('-')[1] || 'USD';
+    const baseCurrency = symbol.split('-')[0] || 'BTC';
 
     const bids = Array.from({ length: depth }, (_, i) => ({
       price: { value: (price - spread/2 - i * 0.01).toFixed(2), currency: quoteCurrency },
@@ -172,8 +173,8 @@ export class SimulatorExchange extends BaseExchange {
     const trades: Trade[] = Array.from({ length: Math.min(limit, 100) }, (_, i) => ({
       id: `trade_${Date.now()}_${i}`,
       symbol,
-      price: { value: (price + (Math.random() - 0.5) * price * 0.01).toFixed(2), currency: symbol.split('-')[1] },
-      size: { value: (Math.random() * 5 + 0.1).toFixed(8), currency: symbol.split('-')[0] },
+      price: { value: (price + (Math.random() - 0.5) * price * 0.01).toFixed(2), currency: symbol.split('-')[1] || 'USD' },
+      size: { value: (Math.random() * 5 + 0.1).toFixed(8), currency: symbol.split('-')[0] || 'BTC' },
       side: Math.random() > 0.5 ? 'buy' : 'sell',
       timestamp: new Date(Date.now() - i * 1000),
       tradeId: `trade_${Date.now()}_${i}`,
@@ -191,8 +192,8 @@ export class SimulatorExchange extends BaseExchange {
     }
 
     const basePrice = data.price;
-    const quoteCurrency = symbol.split('-')[1];
-    const baseCurrency = symbol.split('-')[0];
+    const quoteCurrency = symbol.split('-')[1] || 'USD';
+    const baseCurrency = symbol.split('-')[0] || 'BTC';
     
     const candles = Array.from({ length: Math.min(limit, 200) }, (_, i) => {
       const timestamp = new Date(Date.now() - (limit - i) * 60000); // 1 minute intervals
@@ -241,11 +242,11 @@ export class SimulatorExchange extends BaseExchange {
       side: orderRequest.side,
       type: orderRequest.type,
       size: orderRequest.size,
-      price: orderRequest.price || { value: currentPrice.toFixed(2), currency: orderRequest.symbol.split('-')[1] },
+      price: orderRequest.price || { value: currentPrice.toFixed(2), currency: orderRequest.symbol.split('-')[1] || 'USD' },
       status: isMarketOrder ? OrderStatus.FILLED : OrderStatus.OPEN,
       filledSize: isMarketOrder ? orderRequest.size : { value: '0', currency: orderRequest.size.currency },
-      averageFillPrice: isMarketOrder ? { value: currentPrice.toFixed(2), currency: orderRequest.symbol.split('-')[1] } : undefined,
-      fees: { value: '0', currency: orderRequest.symbol.split('-')[1] },
+      averageFillPrice: isMarketOrder ? { value: currentPrice.toFixed(2), currency: orderRequest.symbol.split('-')[1] || 'USD' } : undefined,
+      fees: { value: '0', currency: orderRequest.symbol.split('-')[1] || 'USD' },
       clientOrderId: orderRequest.clientOrderId,
       exchangeOrderId: orderId,
       timeInForce: orderRequest.timeInForce || 'GTC',
@@ -363,11 +364,10 @@ export class SimulatorExchange extends BaseExchange {
       tradeId: fillId,
       symbol: order.symbol,
       side: order.side,
-      price: { value: fillPrice.toFixed(2), currency: order.symbol.split('-')[1] },
+      price: { value: fillPrice.toFixed(2), currency: order.symbol.split('-')[1] || 'USD' },
       size: order.size,
-      fees: { value: '0', currency: order.symbol.split('-')[1] },
+      fees: { value: '0', currency: order.symbol.split('-')[1] || 'USD' },
       liquidity: 'taker',
-      timestamp: new Date(),
       createdAt: new Date(),
     };
 

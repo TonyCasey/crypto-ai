@@ -39,11 +39,11 @@ export class CryptoUtils {
   }
 
   static validateApiKey(apiKey: string): boolean {
-    return apiKey && apiKey.length > 0;
+    return !!apiKey && apiKey.length > 0;
   }
 
   static validateApiSecret(apiSecret: string): boolean {
-    return apiSecret && apiSecret.length > 0;
+    return !!apiSecret && apiSecret.length > 0;
   }
 
   static maskApiKey(apiKey: string): string {

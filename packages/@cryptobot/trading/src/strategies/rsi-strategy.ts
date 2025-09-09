@@ -5,8 +5,9 @@ import {
   OrderSide,
   OrderType,
   TimeFrame,
+  IndicatorType,
 } from '@cryptobot/types';
-import { RSIIndicator, IndicatorFactory, IndicatorType } from '@cryptobot/indicators';
+import { RSIIndicator, IndicatorFactory } from '@cryptobot/indicators';
 import { BaseStrategy, StrategyContext } from './base-strategy';
 
 export interface RSIStrategyParameters {
@@ -112,7 +113,7 @@ export class RSIStrategy extends BaseStrategy {
 
     // Check if we're not generating opposite signals too quickly
     if (this.context.lastSignal) {
-      const timeDiff = signal.timestamp.getTime() - this.context.lastSignal.timestamp.getTime();
+      const timeDiff = signal.createdAt.getTime() - this.context.lastSignal.createdAt.getTime();
       const minCooldown = 30 * 60 * 1000; // 30 minutes cooldown
 
       if (timeDiff < minCooldown && this.context.lastSignal.side !== signal.side) {
@@ -148,7 +149,7 @@ export class RSIStrategy extends BaseStrategy {
       type: OrderType.MARKET, // RSI strategy uses market orders for quick execution
       size: { 
         value: positionSize.toFixed(8), 
-        currency: signal.symbol.split('-')[0] 
+        currency: signal.symbol.split('-')[0] || 'BTC' 
       },
       clientOrderId: `rsi_${signal.strategyId}_${Date.now()}`,
       timeInForce: 'GTC',
@@ -185,8 +186,17 @@ export class RSIStrategy extends BaseStrategy {
     const recentPrices = marketData.slice(-10);
 
     // Simple divergence detection
-    const rsiTrend = recentRsi[recentRsi.length - 1].value - recentRsi[0].value;
-    const priceTrend = recentPrices[recentPrices.length - 1].close - recentPrices[0].close;
+    const lastRsi = recentRsi[recentRsi.length - 1];
+    const firstRsi = recentRsi[0];
+    const lastPrice = recentPrices[recentPrices.length - 1];
+    const firstPrice = recentPrices[0];
+    
+    if (!lastRsi || !firstRsi || !lastPrice || !firstPrice) {
+      return null;
+    }
+    
+    const rsiTrend = lastRsi.value - firstRsi.value;
+    const priceTrend = lastPrice.close - firstPrice.close;
 
     // Bullish divergence: price going down, RSI going up
     if (priceTrend < 0 && rsiTrend > 0 && Math.abs(rsiTrend) > 5) {

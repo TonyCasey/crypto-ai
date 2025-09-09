@@ -59,7 +59,10 @@ export class TradingEngine extends EventEmitter {
       const strategyInstance = StrategyFactory.create(strategy);
       
       // Initialize strategy with empty market data initially
-      await strategyInstance.initialize(strategy.symbols[0], []);
+      const firstSymbol = strategy.symbols[0];
+      if (firstSymbol) {
+        await strategyInstance.initialize(firstSymbol, []);
+      }
       
       this.strategies.set(strategy.id, strategyInstance);
       this.exchanges.set(strategy.id, exchange);
@@ -210,8 +213,8 @@ export class TradingEngine extends EventEmitter {
         const execution: StrategyExecution = {
           id: `exec_${Date.now()}`,
           strategyId: strategy.getStrategy().id,
-          signalId: `signal_${Date.now()}`,
-          orderData: orderRequest,
+          signal: signal,
+          order: orderRequest,
           executionTime: new Date(),
           status: 'executed',
           createdAt: new Date(),
@@ -245,7 +248,7 @@ export class TradingEngine extends EventEmitter {
       status: 'filled' as any,
       filledSize: orderRequest.size,
       averageFillPrice: orderRequest.price,
-      fees: { value: '0', currency: orderRequest.symbol.split('-')[1] },
+      fees: { value: '0', currency: orderRequest.symbol.split('-')[1] || 'USD' },
       clientOrderId: orderRequest.clientOrderId,
       exchangeOrderId: `paper_${Date.now()}`,
       timeInForce: orderRequest.timeInForce || 'GTC',
@@ -258,8 +261,8 @@ export class TradingEngine extends EventEmitter {
     const execution: StrategyExecution = {
       id: `paper_exec_${Date.now()}`,
       strategyId: strategy.getStrategy().id,
-      signalId: `paper_signal_${Date.now()}`,
-      orderData: orderRequest,
+      signal: signal,
+      order: orderRequest,
       executionTime: new Date(),
       status: 'executed',
       createdAt: new Date(),

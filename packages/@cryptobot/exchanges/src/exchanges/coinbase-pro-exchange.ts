@@ -102,14 +102,14 @@ export class CoinbaseProExchange extends BaseExchange {
 
       const ticker: Ticker = {
         symbol,
-        price: { value: tickerResponse.data.price, currency: symbol.split('-')[1] },
-        bidPrice: { value: tickerResponse.data.bid, currency: symbol.split('-')[1] },
-        askPrice: { value: tickerResponse.data.ask, currency: symbol.split('-')[1] },
-        volume24h: { value: statsResponse.data.volume, currency: symbol.split('-')[0] },
+        price: { value: tickerResponse.data.price, currency: symbol.split('-')[1] || 'USD' },
+        bidPrice: { value: tickerResponse.data.bid, currency: symbol.split('-')[1] || 'USD' },
+        askPrice: { value: tickerResponse.data.ask, currency: symbol.split('-')[1] || 'USD' },
+        volume24h: { value: statsResponse.data.volume, currency: symbol.split('-')[0] || 'BTC' },
         change24h: { value: parseFloat(statsResponse.data.volume) > 0 ? 
           ((parseFloat(tickerResponse.data.price) - parseFloat(statsResponse.data.open)) / parseFloat(statsResponse.data.open)) * 100 : 0 },
-        high24h: { value: statsResponse.data.high, currency: symbol.split('-')[1] },
-        low24h: { value: statsResponse.data.low, currency: symbol.split('-')[1] },
+        high24h: { value: statsResponse.data.high, currency: symbol.split('-')[1] || 'USD' },
+        low24h: { value: statsResponse.data.low, currency: symbol.split('-')[1] || 'USD' },
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -129,13 +129,13 @@ export class CoinbaseProExchange extends BaseExchange {
       const orderBook: OrderBook = {
         symbol,
         bids: response.data.bids.map((bid: [string, string, number]) => ({
-          price: { value: bid[0], currency: symbol.split('-')[1] },
-          size: { value: bid[1], currency: symbol.split('-')[0] },
+          price: { value: bid[0], currency: symbol.split('-')[1] || 'USD' },
+          size: { value: bid[1], currency: symbol.split('-')[0] || 'BTC' },
           orderCount: bid[2],
         })),
         asks: response.data.asks.map((ask: [string, string, number]) => ({
-          price: { value: ask[0], currency: symbol.split('-')[1] },
-          size: { value: ask[1], currency: symbol.split('-')[0] },
+          price: { value: ask[0], currency: symbol.split('-')[1] || 'USD' },
+          size: { value: ask[1], currency: symbol.split('-')[0] || 'BTC' },
           orderCount: ask[2],
         })),
         sequence: response.data.sequence,
@@ -158,8 +158,8 @@ export class CoinbaseProExchange extends BaseExchange {
       const trades: Trade[] = response.data.map((trade: any) => ({
         id: trade.trade_id.toString(),
         symbol,
-        price: { value: trade.price, currency: symbol.split('-')[1] },
-        size: { value: trade.size, currency: symbol.split('-')[0] },
+        price: { value: trade.price, currency: symbol.split('-')[1] || 'USD' },
+        size: { value: trade.size, currency: symbol.split('-')[0] || 'BTC' },
         side: trade.side,
         timestamp: new Date(trade.time),
         tradeId: trade.trade_id.toString(),
@@ -199,11 +199,11 @@ export class CoinbaseProExchange extends BaseExchange {
 
       const candles = response.data.reverse().map((candle: number[]) => ({
         timestamp: new Date(candle[0] * 1000),
-        open: { value: candle[3].toString(), currency: symbol.split('-')[1] },
-        high: { value: candle[2].toString(), currency: symbol.split('-')[1] },
-        low: { value: candle[1].toString(), currency: symbol.split('-')[1] },
-        close: { value: candle[4].toString(), currency: symbol.split('-')[1] },
-        volume: { value: candle[5].toString(), currency: symbol.split('-')[0] },
+        open: { value: candle[3].toString(), currency: symbol.split('-')[1] || 'USD' },
+        high: { value: candle[2].toString(), currency: symbol.split('-')[1] || 'USD' },
+        low: { value: candle[1].toString(), currency: symbol.split('-')[1] || 'USD' },
+        close: { value: candle[4].toString(), currency: symbol.split('-')[1] || 'USD' },
+        volume: { value: candle[5].toString(), currency: symbol.split('-')[0] || 'BTC' },
         timeFrame: timeFrame as TimeFrame,
       }));
 
@@ -243,8 +243,8 @@ export class CoinbaseProExchange extends BaseExchange {
         size: orderRequest.size,
         price: orderRequest.price,
         status: OrderStatus.PENDING,
-        filledSize: { value: '0', currency: orderRequest.symbol.split('-')[0] },
-        fees: { value: '0', currency: orderRequest.symbol.split('-')[1] },
+        filledSize: { value: '0', currency: orderRequest.symbol.split('-')[0] || 'BTC' },
+        fees: { value: '0', currency: orderRequest.symbol.split('-')[1] || 'USD' },
         clientOrderId: orderRequest.clientOrderId,
         exchangeOrderId: response.data.id,
         timeInForce: orderRequest.timeInForce || 'GTC',

@@ -135,7 +135,7 @@ export class MACDStrategy extends BaseStrategy {
 
     // Avoid signals when MACD is near zero line (low conviction)
     const macdValue = signal.indicatorValues.macd;
-    if (Math.abs(macdValue) < this.parameters.minHistogramThreshold * 0.5) {
+    if (macdValue !== undefined && Math.abs(macdValue) < this.parameters.minHistogramThreshold * 0.5) {
       this.emit('signalRejected', {
         signal,
         reason: 'MACD too close to zero line'
@@ -166,11 +166,11 @@ export class MACDStrategy extends BaseStrategy {
       type: OrderType.LIMIT, // MACD strategy uses limit orders for better fills
       size: { 
         value: positionSize.toFixed(8), 
-        currency: signal.symbol.split('-')[0] 
+        currency: signal.symbol.split('-')[0] || 'BTC' 
       },
       price: signal.side === OrderSide.BUY 
-        ? { value: (currentPrice * 0.999).toFixed(2), currency: signal.symbol.split('-')[1] }  // Slightly below market
-        : { value: (currentPrice * 1.001).toFixed(2), currency: signal.symbol.split('-')[1] }, // Slightly above market
+        ? { value: (currentPrice * 0.999).toFixed(2), currency: signal.symbol.split('-')[1] || 'USD' }  // Slightly below market
+        : { value: (currentPrice * 1.001).toFixed(2), currency: signal.symbol.split('-')[1] || 'USD' }, // Slightly above market
       clientOrderId: `macd_${signal.strategyId}_${Date.now()}`,
       timeInForce: 'GTC',
     };
@@ -211,7 +211,12 @@ export class MACDStrategy extends BaseStrategy {
     const recentResults = results.slice(-5) as MACDResult[];
     
     // Check if MACD trend aligns with signal direction
-    const macdTrend = recentResults[recentResults.length - 1].metadata.macd - recentResults[0].metadata.macd;
+    const lastResult = recentResults[recentResults.length - 1];
+    const firstResult = recentResults[0];
+    
+    if (!lastResult || !firstResult) return false;
+    
+    const macdTrend = lastResult.metadata.macd - firstResult.metadata.macd;
     
     if (side === OrderSide.BUY && macdTrend > 0) return true;
     if (side === OrderSide.SELL && macdTrend < 0) return true;
@@ -233,7 +238,7 @@ export class MACDStrategy extends BaseStrategy {
     };
   }
 
-  isMACD AboveZero(): boolean {
+  isMACDAboveZero(): boolean {
     const macdData = this.getMACD();
     return macdData ? macdData.macd > 0 : false;
   }
@@ -245,8 +250,13 @@ export class MACDStrategy extends BaseStrategy {
     if (results.length < periods) return 'flat';
 
     const recentResults = results.slice(-periods) as MACDResult[];
-    const first = recentResults[0].metadata.histogram;
-    const last = recentResults[recentResults.length - 1].metadata.histogram;
+    const firstResult = recentResults[0];
+    const lastResult = recentResults[recentResults.length - 1];
+    
+    if (!firstResult || !lastResult) return 'flat';
+    
+    const first = firstResult.metadata.histogram;
+    const last = lastResult.metadata.histogram;
     
     const change = last - first;
     const threshold = Math.abs(first * 0.1); // 10% threshold

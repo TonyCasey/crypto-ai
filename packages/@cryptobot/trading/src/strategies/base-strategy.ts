@@ -128,17 +128,27 @@ export abstract class BaseStrategy extends EventEmitter {
       reason,
       strategyId: this.strategy.id,
       indicatorValues,
-      targetPrice: targetPrice ? { value: targetPrice.toString(), currency: this.context.symbol.split('-')[1] } : undefined,
-      stopLoss: stopLoss ? { value: stopLoss.toString(), currency: this.context.symbol.split('-')[1] } : undefined,
-      takeProfit: takeProfit ? { value: takeProfit.toString(), currency: this.context.symbol.split('-')[1] } : undefined,
-      timestamp: new Date(),
+      targetPrice: targetPrice ? { 
+        value: targetPrice.toString(), 
+        currency: this.context.symbol.split('-')[1] || 'USD' 
+      } : undefined,
+      stopLoss: stopLoss ? { 
+        value: stopLoss.toString(), 
+        currency: this.context.symbol.split('-')[1] || 'USD' 
+      } : undefined,
+      takeProfit: takeProfit ? { 
+        value: takeProfit.toString(), 
+        currency: this.context.symbol.split('-')[1] || 'USD' 
+      } : undefined,
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
   }
 
   protected getCurrentPrice(): number | null {
     if (this.context.marketData.length === 0) return null;
-    return this.context.marketData[this.context.marketData.length - 1].close;
+    const lastCandle = this.context.marketData[this.context.marketData.length - 1];
+    return lastCandle ? lastCandle.close : null;
   }
 
   protected checkRiskParameters(signal: TradingSignal): boolean {

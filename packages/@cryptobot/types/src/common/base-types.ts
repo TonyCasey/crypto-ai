@@ -7,10 +7,8 @@ export interface Identifiable {
   id: string;
 }
 
-export interface Decimal {
-  value: string;
-  precision: number;
-}
+// Simplified Decimal type for practical use
+export type Decimal = string;
 
 export interface Price {
   value: Decimal;
