@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(pnpm run:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(pnpm install:*)",
+      "Bash(npx pnpm run dev:*)"
     ],
     "deny": [],
     "ask": []

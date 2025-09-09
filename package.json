@@ -9,18 +9,18 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "npm run dev --workspace=backend",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "build": "npm run build:packages && npm run build:backend && npm run build:frontend",
-    "build:packages": "npm run build --workspace=@cryptobot/types && npm run build --workspace=@cryptobot/database && npm run build --workspace=@cryptobot/indicators && npm run build --workspace=@cryptobot/exchanges && npm run build --workspace=@cryptobot/trading",
-    "build:backend": "npm run build --workspace=backend",
-    "build:frontend": "npm run build --workspace=frontend",
-    "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present && rimraf node_modules",
-    "postinstall": "npm run build:packages"
+    "dev": "concurrently \"pnpm run dev --filter=backend\" \"pnpm run dev --filter=frontend\"",
+    "dev:backend": "pnpm run dev --filter=backend",
+    "dev:frontend": "pnpm run dev --filter=frontend",
+    "build": "pnpm run build:packages && pnpm run build:backend && pnpm run build:frontend",
+    "build:packages": "pnpm run build --filter=@cryptobot/types && pnpm run build --filter=@cryptobot/database && pnpm run build --filter=@cryptobot/indicators && pnpm run build --filter=@cryptobot/exchanges && pnpm run build --filter=@cryptobot/trading",
+    "build:backend": "pnpm run build --filter=backend",
+    "build:frontend": "pnpm run build --filter=frontend",
+    "test": "pnpm run test --recursive",
+    "lint": "pnpm run lint --recursive",
+    "typecheck": "pnpm run typecheck --recursive",
+    "clean": "pnpm run clean --recursive && rimraf node_modules",
+    "postinstall": "pnpm run build:packages"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.21.0",
