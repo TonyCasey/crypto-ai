@@ -198,12 +198,12 @@ export class CoinbaseProExchange extends BaseExchange {
       });
 
       const candles = response.data.reverse().map((candle: number[]) => ({
-        timestamp: new Date(candle[0] * 1000),
-        open: { value: candle[3].toString(), currency: symbol.split('-')[1] || 'USD' },
-        high: { value: candle[2].toString(), currency: symbol.split('-')[1] || 'USD' },
-        low: { value: candle[1].toString(), currency: symbol.split('-')[1] || 'USD' },
-        close: { value: candle[4].toString(), currency: symbol.split('-')[1] || 'USD' },
-        volume: { value: candle[5].toString(), currency: symbol.split('-')[0] || 'BTC' },
+        timestamp: new Date((candle[0] || 0) * 1000),
+        open: { value: (candle[3] || 0).toString(), currency: symbol.split('-')[1] || 'USD' },
+        high: { value: (candle[2] || 0).toString(), currency: symbol.split('-')[1] || 'USD' },
+        low: { value: (candle[1] || 0).toString(), currency: symbol.split('-')[1] || 'USD' },
+        close: { value: (candle[4] || 0).toString(), currency: symbol.split('-')[1] || 'USD' },
+        volume: { value: (candle[5] || 0).toString(), currency: symbol.split('-')[0] || 'BTC' },
         timeFrame: timeFrame as TimeFrame,
       }));
 

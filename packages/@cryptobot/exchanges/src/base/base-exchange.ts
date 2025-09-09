@@ -125,7 +125,7 @@ export abstract class BaseExchange extends EventEmitter implements IExchangeConn
 
         // Add authentication headers
         const authHeaders = this.getAuthHeaders(timestamp, method, path, body);
-        config.headers = { ...config.headers, ...authHeaders };
+        config.headers = Object.assign(config.headers || {}, authHeaders);
 
         return config;
       },

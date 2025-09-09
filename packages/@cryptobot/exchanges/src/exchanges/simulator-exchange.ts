@@ -369,6 +369,7 @@ export class SimulatorExchange extends BaseExchange {
       fees: { value: '0', currency: order.symbol.split('-')[1] || 'USD' },
       liquidity: 'taker',
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     if (!this.state.fills.has(order.id)) {
@@ -378,20 +379,22 @@ export class SimulatorExchange extends BaseExchange {
 
     // Update balances
     const [baseCurrency, quoteCurrency] = order.symbol.split('-');
+    const baseCurr = baseCurrency || 'BTC';
+    const quoteCurr = quoteCurrency || 'USD';
     const orderValue = parseFloat(order.size.value) * fillPrice;
 
     if (order.side === OrderSide.BUY) {
       // Deduct quote currency, add base currency
-      this.state.balances.set(quoteCurrency, 
-        (this.state.balances.get(quoteCurrency) || 0) - orderValue);
-      this.state.balances.set(baseCurrency, 
-        (this.state.balances.get(baseCurrency) || 0) + parseFloat(order.size.value));
+      this.state.balances.set(quoteCurr, 
+        (this.state.balances.get(quoteCurr) || 0) - orderValue);
+      this.state.balances.set(baseCurr, 
+        (this.state.balances.get(baseCurr) || 0) + parseFloat(order.size.value));
     } else {
       // Deduct base currency, add quote currency
-      this.state.balances.set(baseCurrency, 
-        (this.state.balances.get(baseCurrency) || 0) - parseFloat(order.size.value));
-      this.state.balances.set(quoteCurrency, 
-        (this.state.balances.get(quoteCurrency) || 0) + orderValue);
+      this.state.balances.set(baseCurr, 
+        (this.state.balances.get(baseCurr) || 0) - parseFloat(order.size.value));
+      this.state.balances.set(quoteCurr, 
+        (this.state.balances.get(quoteCurr) || 0) + orderValue);
     }
 
     this.emit('orderFilled', { order, fill });
