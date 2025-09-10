@@ -1,13 +1,13 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { prisma } from '@cryptobot/database';
 import { AuthenticatedRequest } from '../middleware/auth-middleware';
 import { ExchangeType } from '@cryptobot/types';
 
-const router = Router();
+const router: Router = Router();
 
 // Get user exchange configurations
-router.get('/', async (req: AuthenticatedRequest, res) => {
+router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const exchanges = await prisma.exchangeConfig.findMany({
       where: {
@@ -26,13 +26,13 @@ router.get('/', async (req: AuthenticatedRequest, res) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: exchanges,
     });
   } catch (error) {
     console.error('Get exchanges error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get exchange configurations',
     });
@@ -47,7 +47,7 @@ router.post('/', [
   body('apiSecret').isString().isLength({ min: 1 }),
   body('passphrase').optional().isString(),
   body('sandbox').optional().isBoolean(),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -90,13 +90,13 @@ router.post('/', [
       },
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: exchange,
     });
   } catch (error) {
     console.error('Create exchange error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to create exchange configuration',
     });
@@ -111,7 +111,7 @@ router.put('/:id', [
   body('apiSecret').optional().isString().isLength({ min: 1 }),
   body('passphrase').optional().isString(),
   body('sandbox').optional().isBoolean(),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -152,13 +152,13 @@ router.put('/:id', [
       },
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: updatedExchange,
     });
   } catch (error) {
     console.error('Update exchange error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to update exchange configuration',
     });
@@ -166,7 +166,7 @@ router.put('/:id', [
 });
 
 // Delete exchange configuration
-router.delete('/:id', async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -188,13 +188,13 @@ router.delete('/:id', async (req: AuthenticatedRequest, res) => {
       where: { id },
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Exchange configuration deleted successfully',
     });
   } catch (error) {
     console.error('Delete exchange error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to delete exchange configuration',
     });
@@ -202,7 +202,7 @@ router.delete('/:id', async (req: AuthenticatedRequest, res) => {
 });
 
 // Test exchange connection
-router.post('/:id/test', async (req: AuthenticatedRequest, res) => {
+router.post('/:id/test', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -223,7 +223,7 @@ router.post('/:id/test', async (req: AuthenticatedRequest, res) => {
     // TODO: Implement actual exchange connection test
     // This would use the ExchangeFactory to create a connection and test it
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Exchange connection test successful',
       data: {
@@ -234,7 +234,7 @@ router.post('/:id/test', async (req: AuthenticatedRequest, res) => {
     });
   } catch (error) {
     console.error('Test exchange connection error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to test exchange connection',
     });

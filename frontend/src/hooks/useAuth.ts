@@ -31,7 +31,7 @@ export function useAuth() {
       const token = localStorage.getItem('token')
       if (token) {
         apiService.getMe()
-          .then(response => {
+          .then((response: any) => {
             if (response.success && response.data) {
               setUser(response.data)
             }

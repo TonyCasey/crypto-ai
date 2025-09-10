@@ -6,7 +6,6 @@ import {
 } from '@cryptobot/trading';
 import { 
   ExchangeFactory,
-  IExchangeConnector,
 } from '@cryptobot/exchanges';
 import { 
   ExchangeType, 
@@ -16,6 +15,7 @@ import {
   Order,
   TradingSignal,
   ApiResponse,
+  IExchangeConnector,
 } from '@cryptobot/types';
 import { prisma } from '@cryptobot/database';
 import { IndicatorInput } from '@cryptobot/indicators';
@@ -248,7 +248,7 @@ export class TradingService extends EventEmitter {
         },
       });
 
-      return orders.map(order => ({
+      return orders.map((order: any) => ({
         id: order.id,
         symbol: order.symbol,
         side: order.side as any,
@@ -293,7 +293,7 @@ export class TradingService extends EventEmitter {
         },
       });
 
-      return signals.map(signal => ({
+      return signals.map((signal: any) => ({
         symbol: signal.symbol,
         side: signal.side as any,
         strength: signal.strength,
@@ -344,8 +344,8 @@ export class TradingService extends EventEmitter {
 
       // Calculate basic metrics
       const totalTrades = orders.length;
-      const totalVolume = orders.reduce((sum, order) => sum + parseFloat(order.size.toString()), 0);
-      const totalFees = orders.reduce((sum, order) => sum + parseFloat(order.fees.toString()), 0);
+      const totalVolume = orders.reduce((sum: number, order: any) => sum + parseFloat(order.size.toString()), 0);
+      const totalFees = orders.reduce((sum: number, order: any) => sum + parseFloat(order.fees.toString()), 0);
 
       return {
         totalTrades,

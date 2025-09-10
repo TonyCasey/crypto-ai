@@ -17,11 +17,11 @@
     "db:seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
-    "@cryptobot/types": "workspace:*",
-    "@cryptobot/database": "workspace:*",
-    "@cryptobot/indicators": "workspace:*",
-    "@cryptobot/exchanges": "workspace:*",
-    "@cryptobot/trading": "workspace:*",
+    "@cryptobot/types": "file:../packages/@cryptobot/types",
+    "@cryptobot/database": "file:../packages/@cryptobot/database",
+    "@cryptobot/indicators": "file:../packages/@cryptobot/indicators",
+    "@cryptobot/exchanges": "file:../packages/@cryptobot/exchanges",
+    "@cryptobot/trading": "file:../packages/@cryptobot/trading",
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",

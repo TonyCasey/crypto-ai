@@ -1,18 +1,18 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import { prisma } from '@cryptobot/database';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/auth-middleware';
 
-const router = Router();
+const router: Router = Router();
 
 // Register
 router.post('/register', [
   body('email').isEmail().normalizeEmail(),
   body('username').isLength({ min: 3, max: 30 }).trim(),
   body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -74,7 +74,7 @@ router.post('/register', [
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: {
         user,
@@ -83,7 +83,7 @@ router.post('/register', [
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to create user',
     });
@@ -94,7 +94,7 @@ router.post('/register', [
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').exists(),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -142,7 +142,7 @@ router.post('/login', [
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         user: {
@@ -156,7 +156,7 @@ router.post('/login', [
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Login failed',
     });
@@ -164,10 +164,10 @@ router.post('/login', [
 });
 
 // Logout
-router.post('/logout', (req, res) => {
+router.post('/logout', (req: Request, res: Response) => {
   res.clearCookie('token');
-  req.session?.destroy(() => {
-    res.json({
+  return req.session?.destroy(() => {
+    return res.json({
       success: true,
       message: 'Logged out successfully',
     });
@@ -175,7 +175,7 @@ router.post('/logout', (req, res) => {
 });
 
 // Get current user
-router.get('/me', authMiddleware, async (req: AuthenticatedRequest, res) => {
+router.get('/me', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
@@ -195,13 +195,13 @@ router.get('/me', authMiddleware, async (req: AuthenticatedRequest, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: user,
     });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get user information',
     });
@@ -209,7 +209,7 @@ router.get('/me', authMiddleware, async (req: AuthenticatedRequest, res) => {
 });
 
 // Refresh token
-router.post('/refresh', authMiddleware, async (req: AuthenticatedRequest, res) => {
+router.post('/refresh', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const user = req.user!;
 
@@ -227,13 +227,13 @@ router.post('/refresh', authMiddleware, async (req: AuthenticatedRequest, res) =
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: { token },
     });
   } catch (error) {
     console.error('Token refresh error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to refresh token',
     });

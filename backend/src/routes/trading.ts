@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import { AuthenticatedRequest } from '../middleware/auth-middleware';
 import { TradingService } from '../services/trading-service';
 
-const router = Router();
+const router: Router = Router();
 let tradingService: TradingService;
 
 // Initialize trading service
@@ -15,18 +15,18 @@ const initializeTradingService = () => {
 };
 
 // Get trading status
-router.get('/status', async (req: AuthenticatedRequest, res) => {
+router.get('/status', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const service = initializeTradingService();
     const status = await service.getStatus();
 
-    res.json({
+    return res.json({
       success: true,
       data: status,
     });
   } catch (error) {
     console.error('Get trading status error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get trading status',
     });
@@ -34,18 +34,18 @@ router.get('/status', async (req: AuthenticatedRequest, res) => {
 });
 
 // Start trading
-router.post('/start', async (req: AuthenticatedRequest, res) => {
+router.post('/start', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const service = initializeTradingService();
     await service.start();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Trading started successfully',
     });
   } catch (error) {
     console.error('Start trading error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to start trading',
     });
@@ -53,18 +53,18 @@ router.post('/start', async (req: AuthenticatedRequest, res) => {
 });
 
 // Stop trading
-router.post('/stop', async (req: AuthenticatedRequest, res) => {
+router.post('/stop', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const service = initializeTradingService();
     await service.stop();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Trading stopped successfully',
     });
   } catch (error) {
     console.error('Stop trading error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to stop trading',
     });
@@ -75,7 +75,7 @@ router.post('/stop', async (req: AuthenticatedRequest, res) => {
 router.get('/orders', [
   query('symbol').optional().isString(),
   query('status').optional().isIn(['pending', 'open', 'filled', 'cancelled', 'rejected', 'expired']),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -95,13 +95,13 @@ router.get('/orders', [
       status: status as any,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: orders,
     });
   } catch (error) {
     console.error('Get orders error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get orders',
     });
@@ -116,7 +116,7 @@ router.post('/orders', [
   body('size').isNumeric(),
   body('price').optional().isNumeric(),
   body('exchangeType').isIn(['coinbase_pro', 'bittrex', 'binance', 'kraken', 'simulator']),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -136,19 +136,19 @@ router.post('/orders', [
     const result = await service.placeManualOrder(orderRequest);
 
     if (result.success) {
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: result.data,
       });
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: result.error,
       });
     }
   } catch (error) {
     console.error('Place order error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to place order',
     });
@@ -156,27 +156,27 @@ router.post('/orders', [
 });
 
 // Cancel order
-router.delete('/orders/:orderId', async (req: AuthenticatedRequest, res) => {
+router.delete('/orders/:orderId', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { orderId } = req.params;
     const service = initializeTradingService();
 
-    const result = await service.cancelOrder(orderId, req.user!.id);
+    const result = await service.cancelOrder(orderId!, req.user!.id);
 
     if (result.success) {
-      res.json({
+      return res.json({
         success: true,
         message: 'Order cancelled successfully',
       });
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: result.error,
       });
     }
   } catch (error) {
     console.error('Cancel order error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to cancel order',
     });
@@ -188,7 +188,7 @@ router.get('/signals', [
   query('symbol').optional().isString(),
   query('strategyId').optional().isString(),
   query('limit').optional().isInt({ min: 1, max: 100 }),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -209,13 +209,13 @@ router.get('/signals', [
       limit: parseInt(limit as string) || 50,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: signals,
     });
   } catch (error) {
     console.error('Get signals error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get trading signals',
     });
@@ -226,7 +226,7 @@ router.get('/signals', [
 router.get('/performance', [
   query('period').optional().isIn(['1d', '7d', '30d', '90d', '1y', 'all']),
   query('strategyId').optional().isString(),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -246,13 +246,13 @@ router.get('/performance', [
       strategyId: strategyId as string,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: performance,
     });
   } catch (error) {
     console.error('Get performance error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get trading performance',
     });
@@ -260,18 +260,18 @@ router.get('/performance', [
 });
 
 // Get trading metrics
-router.get('/metrics', async (req: AuthenticatedRequest, res) => {
+router.get('/metrics', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const service = initializeTradingService();
     const metrics = await service.getMetrics(req.user!.id);
 
-    res.json({
+    return res.json({
       success: true,
       data: metrics,
     });
   } catch (error) {
     console.error('Get metrics error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get trading metrics',
     });

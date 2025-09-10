@@ -90,7 +90,7 @@ export function DashboardPage() {
           <div className="card-content">
             {recentSignals?.data?.length > 0 ? (
               <div className="space-y-4">
-                {recentSignals.data.slice(0, 5).map((signal: any, index: number) => (
+                {recentSignals?.data?.slice(0, 5).map((signal: any, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium">{signal.symbol}</p>
@@ -121,7 +121,7 @@ export function DashboardPage() {
           <div className="card-content">
             {portfolio?.data?.balances?.length > 0 ? (
               <div className="space-y-4">
-                {portfolio.data.balances.map((balance: any, index: number) => (
+                {portfolio?.data?.balances?.map((balance: any, index: number) => (
                   <div key={index} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{balance.currency}</p>

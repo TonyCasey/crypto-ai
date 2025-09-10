@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -29,7 +29,7 @@ import { WebSocketService } from './websocket/websocket-service';
 // Load environment variables
 dotenv.config();
 
-const app = express();
+const app: Express = express();
 const server = createServer(app);
 const io = new SocketServer(server, {
   cors: {
@@ -109,7 +109,7 @@ const webSocketService = new WebSocketService(io);
 
 // WebSocket connection handling
 io.on('connection', (socket) => {
-  console.log(\`Client connected: \${socket.id}\`);
+  console.log(`Client connected: ${socket.id}`);
   webSocketService.handleConnection(socket);
 });
 
@@ -140,9 +140,9 @@ process.on('SIGINT', async () => {
 
 // Start server
 server.listen(PORT, () => {
-  console.log(\`🚀 Server running on port \${PORT}\`);
-  console.log(\`📊 Environment: \${NODE_ENV}\`);
-  console.log(\`🔗 Health check: http://localhost:\${PORT}/health\`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Environment: ${NODE_ENV}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   
   // Initialize trading service in development
   if (NODE_ENV === 'development') {

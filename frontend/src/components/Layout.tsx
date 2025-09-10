@@ -5,8 +5,8 @@ import {
   ChartBarIcon,
   CogIcon,
   BanknotesIcon,
-  CircuitBoardIcon,
-  ExchangeIcon,
+  CpuChipIcon,
+  ArrowsRightLeftIcon,
   Bars3Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
@@ -15,9 +15,9 @@ import { useAuth } from '@/hooks/useAuth'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Trading', href: '/trading', icon: ChartBarIcon },
-  { name: 'Strategies', href: '/strategies', icon: CircuitBoardIcon },
+  { name: 'Strategies', href: '/strategies', icon: CpuChipIcon },
   { name: 'Portfolio', href: '/portfolio', icon: BanknotesIcon },
-  { name: 'Exchanges', href: '/exchanges', icon: ExchangeIcon },
+  { name: 'Exchanges', href: '/exchanges', icon: ArrowsRightLeftIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ]
 

@@ -1,12 +1,12 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { query, validationResult } from 'express-validator';
 
-const router = Router();
+const router: Router = Router();
 
 // Get market data (public endpoint)
 router.get('/:symbol/ticker', [
   query('exchange').optional().isIn(['coinbase_pro', 'simulator']),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -26,20 +26,20 @@ router.get('/:symbol/ticker', [
       price: { value: (Math.random() * 50000 + 40000).toFixed(2), currency: 'USD' },
       bidPrice: { value: (Math.random() * 50000 + 39900).toFixed(2), currency: 'USD' },
       askPrice: { value: (Math.random() * 50000 + 40100).toFixed(2), currency: 'USD' },
-      volume24h: { value: (Math.random() * 10000).toFixed(2), currency: symbol.split('-')[0] },
+      volume24h: { value: (Math.random() * 10000).toFixed(2), currency: symbol!.split('-')[0] },
       change24h: { value: (Math.random() - 0.5) * 10 },
       high24h: { value: (Math.random() * 52000 + 40000).toFixed(2), currency: 'USD' },
       low24h: { value: (Math.random() * 48000 + 38000).toFixed(2), currency: 'USD' },
       timestamp: new Date(),
     };
 
-    res.json({
+    return res.json({
       success: true,
       data: mockTicker,
     });
   } catch (error) {
     console.error('Get ticker error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get ticker data',
     });
@@ -50,7 +50,7 @@ router.get('/:symbol/ticker', [
 router.get('/:symbol/candles', [
   query('timeFrame').optional().isIn(['1m', '5m', '15m', '1h', '4h', '1d']),
   query('limit').optional().isInt({ min: 1, max: 200 }),
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -80,12 +80,12 @@ router.get('/:symbol/candles', [
         high: { value: high.toFixed(2), currency: 'USD' },
         low: { value: low.toFixed(2), currency: 'USD' },
         close: { value: close.toFixed(2), currency: 'USD' },
-        volume: { value: (Math.random() * 100).toFixed(2), currency: symbol.split('-')[0] },
+        volume: { value: (Math.random() * 100).toFixed(2), currency: symbol!.split('-')[0] },
         timeFrame,
       };
     }).reverse();
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         symbol,
@@ -96,7 +96,7 @@ router.get('/:symbol/candles', [
     });
   } catch (error) {
     console.error('Get candles error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get candle data',
     });
@@ -104,7 +104,7 @@ router.get('/:symbol/candles', [
 });
 
 // Get supported symbols
-router.get('/symbols', async (req, res) => {
+router.get('/symbols', async (req: Request, res: Response) => {
   try {
     const symbols = [
       {
@@ -127,13 +127,13 @@ router.get('/symbols', async (req, res) => {
       },
     ];
 
-    res.json({
+    return res.json({
       success: true,
       data: symbols,
     });
   } catch (error) {
     console.error('Get symbols error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get symbols',
     });

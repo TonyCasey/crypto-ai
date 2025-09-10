@@ -1,15 +1,15 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import { prisma } from '@cryptobot/database';
 import { AuthenticatedRequest } from '../middleware/auth-middleware';
 import { TradingStrategyType } from '@cryptobot/types';
 
-const router = Router();
+const router: Router = Router();
 
 // Get user strategies
 router.get('/', [
   query('active').optional().isBoolean(),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { active } = req.query;
     
@@ -21,13 +21,13 @@ router.get('/', [
       orderBy: { createdAt: 'desc' },
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: strategies,
     });
   } catch (error) {
     console.error('Get strategies error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get strategies',
     });
@@ -45,7 +45,7 @@ router.post('/', [
   body('timeFrame').isIn(['1m', '5m', '15m', '30m', '1h', '4h', '12h', '1d', '1w', '1M']),
   body('parameters').isObject(),
   body('riskParameters').isObject(),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -63,13 +63,13 @@ router.post('/', [
       },
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: strategy,
     });
   } catch (error) {
     console.error('Create strategy error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to create strategy',
     });
@@ -84,7 +84,7 @@ router.put('/:id', [
   body('symbols').optional().isArray(),
   body('parameters').optional().isObject(),
   body('riskParameters').optional().isObject(),
-], async (req: AuthenticatedRequest, res) => {
+], async (req: AuthenticatedRequest, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -116,13 +116,13 @@ router.put('/:id', [
       data: req.body,
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: updatedStrategy,
     });
   } catch (error) {
     console.error('Update strategy error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to update strategy',
     });
@@ -130,7 +130,7 @@ router.put('/:id', [
 });
 
 // Delete strategy
-router.delete('/:id', async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -152,13 +152,13 @@ router.delete('/:id', async (req: AuthenticatedRequest, res) => {
       where: { id },
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Strategy deleted successfully',
     });
   } catch (error) {
     console.error('Delete strategy error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to delete strategy',
     });
@@ -166,7 +166,7 @@ router.delete('/:id', async (req: AuthenticatedRequest, res) => {
 });
 
 // Get strategy performance
-router.get('/:id/performance', async (req: AuthenticatedRequest, res) => {
+router.get('/:id/performance', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -199,7 +199,7 @@ router.get('/:id/performance', async (req: AuthenticatedRequest, res) => {
 
     // Calculate basic performance metrics
     const totalSignals = signals.length;
-    const executedSignals = executions.filter(e => e.status === 'EXECUTED').length;
+    const executedSignals = executions.filter((e: any) => e.status === 'EXECUTED').length;
     const successRate = totalSignals > 0 ? (executedSignals / totalSignals) * 100 : 0;
 
     const performance = {
@@ -210,13 +210,13 @@ router.get('/:id/performance', async (req: AuthenticatedRequest, res) => {
       recentExecutions: executions.slice(0, 10),
     };
 
-    res.json({
+    return res.json({
       success: true,
       data: performance,
     });
   } catch (error) {
     console.error('Get strategy performance error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get strategy performance',
     });

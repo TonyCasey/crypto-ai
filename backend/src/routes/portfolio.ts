@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '@cryptobot/database';
 import { AuthenticatedRequest } from '../middleware/auth-middleware';
 
-const router = Router();
+const router: Router = Router();
 
 // Get user portfolio
-router.get('/', async (req: AuthenticatedRequest, res) => {
+router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const portfolio = await prisma.portfolio.findFirst({
       where: {
@@ -44,13 +44,13 @@ router.get('/', async (req: AuthenticatedRequest, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: portfolio,
     });
   } catch (error) {
     console.error('Get portfolio error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get portfolio',
     });
@@ -58,7 +58,7 @@ router.get('/', async (req: AuthenticatedRequest, res) => {
 });
 
 // Get positions
-router.get('/positions', async (req: AuthenticatedRequest, res) => {
+router.get('/positions', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const positions = await prisma.position.findMany({
       where: {
@@ -82,13 +82,13 @@ router.get('/positions', async (req: AuthenticatedRequest, res) => {
       },
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: positions,
     });
   } catch (error) {
     console.error('Get positions error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get positions',
     });
@@ -96,7 +96,7 @@ router.get('/positions', async (req: AuthenticatedRequest, res) => {
 });
 
 // Get portfolio history
-router.get('/history', async (req: AuthenticatedRequest, res) => {
+router.get('/history', async (req: AuthenticatedRequest, res: Response) => {
   try {
     // This is simplified - in a real app you'd store portfolio snapshots
     const orders = await prisma.order.findMany({
@@ -121,7 +121,7 @@ router.get('/history', async (req: AuthenticatedRequest, res) => {
 
     // Calculate running totals (simplified)
     let runningTotal = 10000; // Starting balance
-    const history = orders.reverse().map(order => {
+    const history = orders.reverse().map((order: any) => {
       const orderValue = parseFloat(order.size.toString()) * parseFloat(order.price?.toString() || '0');
       const fees = parseFloat(order.fees.toString());
       
@@ -144,13 +144,13 @@ router.get('/history', async (req: AuthenticatedRequest, res) => {
       };
     }).reverse();
 
-    res.json({
+    return res.json({
       success: true,
       data: history,
     });
   } catch (error) {
     console.error('Get portfolio history error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to get portfolio history',
     });
