@@ -3,98 +3,126 @@
 @import 'tailwindcss/utilities';
 
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+
   * {
     @apply border-border;
   }
   
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
+/* Crypto trading specific styles */
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary-600 text-white hover:bg-primary-700 h-10 px-4 py-2;
+  .trading-card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md;
   }
   
-  .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-200 text-gray-900 hover:bg-gray-300 h-10 px-4 py-2;
-  }
-  
-  .btn-danger {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-danger-600 text-white hover:bg-danger-700 h-10 px-4 py-2;
-  }
-  
-  .btn-success {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-success-600 text-white hover:bg-success-700 h-10 px-4 py-2;
-  }
-  
-  .input-field {
-    @apply flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  
-  .card {
-    @apply rounded-lg border bg-white text-gray-950 shadow-sm;
-  }
-  
-  .card-header {
+  .trading-card-header {
     @apply flex flex-col space-y-1.5 p-6;
   }
   
-  .card-content {
+  .trading-card-content {
     @apply p-6 pt-0;
   }
   
   .metric-card {
-    @apply bg-white overflow-hidden shadow rounded-lg;
+    @apply trading-card p-6;
   }
   
-  .metric-card-content {
-    @apply p-5;
+  .metric-value {
+    @apply text-2xl font-bold tracking-tight;
   }
   
-  .metric-card-stats {
-    @apply flex items-center;
+  .metric-label {
+    @apply text-sm text-muted-foreground;
   }
   
-  .metric-card-stat {
-    @apply flex-1;
+  .price-up {
+    @apply text-emerald-500;
   }
   
-  .metric-card-value {
-    @apply text-2xl font-semibold text-gray-900;
+  .price-down {
+    @apply text-red-500;
   }
   
-  .metric-card-label {
-    @apply mt-1 text-sm font-medium text-gray-500 truncate;
+  .price-neutral {
+    @apply text-muted-foreground;
   }
   
-  .table {
-    @apply w-full caption-bottom text-sm;
+  .nav-item {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent hover:text-accent-foreground;
   }
   
-  .table-header {
-    @apply border-b;
+  .nav-item-active {
+    @apply bg-accent text-accent-foreground;
   }
   
-  .table-header-row {
-    @apply border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50;
+  /* Loading animations */
+  .skeleton {
+    @apply animate-pulse rounded-md bg-muted;
   }
   
-  .table-head {
-    @apply h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0;
+  /* Scrollbar styling for dark theme */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
   }
   
-  .table-body {
-    @apply [&_tr:last-child]:border-0;
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-muted;
   }
   
-  .table-row {
-    @apply border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50;
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
   }
   
-  .table-cell {
-    @apply p-4 align-middle [&:has([role=checkbox])]:pr-0;
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
   }
 }

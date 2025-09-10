@@ -17,6 +17,8 @@
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "test": "npm run test:packages && npm run test:backend && npm run test:frontend",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:packages": "cd packages/@cryptobot/types && npm test && cd ../database && npm test && cd ../indicators && npm test && cd ../exchanges && npm test && cd ../trading && npm test",
     "test:backend": "cd backend && npm test",
     "test:frontend": "cd frontend && npm test",
@@ -31,6 +33,7 @@
     "clean": "rimraf node_modules dist build && rimraf packages/*/node_modules packages/*/dist && rimraf backend/node_modules backend/dist && rimraf frontend/node_modules frontend/build"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "concurrently": "^8.2.2",
