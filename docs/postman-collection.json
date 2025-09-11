@@ -1,0 +1,650 @@
+{
+  "info": {
+    "name": "CryptoBot Node.js Migration API",
+    "description": "Comprehensive API collection for the CryptoBot trading platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check the API server health status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.data.token);",
+                  "    pm.test('Registration successful', () => {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.token).to.exist;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"username\": \"testuser\",\n  \"password\": \"TestPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.data.token);",
+                  "    pm.test('Login successful', () => {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.token).to.exist;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"TestPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticate and log in a user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get information about the currently authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "description": "Refresh the authentication token"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Log out the current user"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Trading Strategies",
+      "item": [
+        {
+          "name": "Get All Strategies",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies"]
+            },
+            "description": "Get all trading strategies for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Strategies",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies?active=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies"],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get only active trading strategies"
+          },
+          "response": []
+        },
+        {
+          "name": "Create RSI Strategy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('strategyId', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"RSI Oversold Strategy\",\n  \"type\": \"RSI_OVERSOLD_OVERBOUGHT\",\n  \"description\": \"Buy when RSI < 30, sell when RSI > 70\",\n  \"symbols\": [\"BTC-USD\", \"ETH-USD\"],\n  \"timeFrame\": \"1h\",\n  \"parameters\": {\n    \"rsiPeriod\": 14,\n    \"oversoldThreshold\": 30,\n    \"overboughtThreshold\": 70\n  },\n  \"riskParameters\": {\n    \"maxPositionSize\": 0.1,\n    \"stopLossPercent\": 5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies"]
+            },
+            "description": "Create a new RSI trading strategy"
+          },
+          "response": []
+        },
+        {
+          "name": "Create MACD Strategy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MACD Crossover Strategy\",\n  \"type\": \"MACD_CROSSOVER\",\n  \"description\": \"Buy on MACD bullish crossover, sell on bearish crossover\",\n  \"symbols\": [\"BTC-USD\"],\n  \"timeFrame\": \"4h\",\n  \"parameters\": {\n    \"fastPeriod\": 12,\n    \"slowPeriod\": 26,\n    \"signalPeriod\": 9\n  },\n  \"riskParameters\": {\n    \"maxPositionSize\": 0.05,\n    \"stopLossPercent\": 3\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies"]
+            },
+            "description": "Create a new MACD trading strategy"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Strategy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated RSI Strategy\",\n  \"description\": \"Updated description\",\n  \"isActive\": true,\n  \"parameters\": {\n    \"rsiPeriod\": 21,\n    \"oversoldThreshold\": 25,\n    \"overboughtThreshold\": 75\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies/{{strategyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies", "{{strategyId}}"]
+            },
+            "description": "Update an existing trading strategy"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Strategy Performance",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies/{{strategyId}}/performance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies", "{{strategyId}}", "performance"]
+            },
+            "description": "Get performance metrics for a specific strategy"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Strategy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies/{{strategyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "strategies", "{{strategyId}}"]
+            },
+            "description": "Delete a trading strategy"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Portfolio Management",
+      "item": [
+        {
+          "name": "Get Portfolio",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/portfolio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "portfolio"]
+            },
+            "description": "Get the user's portfolio information"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Positions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/portfolio/positions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "portfolio", "positions"]
+            },
+            "description": "Get current trading positions"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Portfolio History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/portfolio/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "portfolio", "history"]
+            },
+            "description": "Get portfolio value history"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Market Data",
+      "item": [
+        {
+          "name": "Get Ticker - BTC-USD",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/market-data/BTC-USD/ticker",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "market-data", "BTC-USD", "ticker"]
+            },
+            "description": "Get current ticker data for BTC-USD"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticker with Exchange",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/market-data/BTC-USD/ticker?exchange=simulator",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "market-data", "BTC-USD", "ticker"],
+              "query": [
+                {
+                  "key": "exchange",
+                  "value": "simulator"
+                }
+              ]
+            },
+            "description": "Get ticker data from a specific exchange"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Candles - 1H",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/market-data/BTC-USD/candles?timeFrame=1h&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "market-data", "BTC-USD", "candles"],
+              "query": [
+                {
+                  "key": "timeFrame",
+                  "value": "1h"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Get 1-hour candle data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Candles - 4H",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/market-data/ETH-USD/candles?timeFrame=4h&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "market-data", "ETH-USD", "candles"],
+              "query": [
+                {
+                  "key": "timeFrame",
+                  "value": "4h"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Get 4-hour candle data for ETH-USD"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Supported Symbols",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/market-data/symbols",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "market-data", "symbols"]
+            },
+            "description": "Get list of supported trading symbols"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "strategyId",
+      "value": "",
+      "type": "string",
+      "description": "ID of the created strategy for testing"
+    }
+  ]
+}

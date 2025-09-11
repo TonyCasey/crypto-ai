@@ -1,0 +1,1105 @@
+openapi: 3.0.3
+info:
+  title: CryptoBot Node.js Migration API
+  description: |
+    Comprehensive API for cryptocurrency trading automation, portfolio management, and market data access.
+    
+    ## Authentication
+    Most endpoints require JWT authentication. Include the token in the Authorization header:
+    `Authorization: Bearer <your_jwt_token>`
+    
+    ## Rate Limiting
+    - 1000 requests per 15 minutes per IP address
+    - Rate limit headers are included in responses
+    
+  version: 1.0.0
+  contact:
+    name: CryptoBot API Support
+    email: support@cryptobot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://api.cryptobot.com
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check the API server health status
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  environment:
+                    type: string
+                    example: development
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      description: Create a new user account with email, username, and password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Valid email address
+                  example: user@example.com
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                  description: Username (3-30 characters)
+                  example: johndoe
+                password:
+                  type: string
+                  minLength: 8
+                  pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)'
+                  description: Password (min 8 chars, must contain lowercase, uppercase, and digit)
+                  example: Password123!
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      summary: User login
+      description: Authenticate user with email and password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: Password123!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      summary: User logout
+      description: Log out the current user and clear session
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/auth/me:
+    get:
+      summary: Get current user
+      description: Get information about the currently authenticated user
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh:
+    post:
+      summary: Refresh token
+      description: Refresh the authentication token
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            description: New JWT token
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/strategies:
+    get:
+      summary: Get user strategies
+      description: Retrieve all trading strategies for the authenticated user
+      tags:
+        - Trading Strategies
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: active
+          schema:
+            type: boolean
+          description: Filter by active/inactive status
+          example: true
+      responses:
+        '200':
+          description: Strategies retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TradingStrategy'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      summary: Create strategy
+      description: Create a new trading strategy
+      tags:
+        - Trading Strategies
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTradingStrategy'
+      responses:
+        '201':
+          description: Strategy created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TradingStrategy'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/strategies/{id}:
+    put:
+      summary: Update strategy
+      description: Update an existing trading strategy
+      tags:
+        - Trading Strategies
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Strategy UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTradingStrategy'
+      responses:
+        '200':
+          description: Strategy updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TradingStrategy'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Strategy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete strategy
+      description: Delete a trading strategy
+      tags:
+        - Trading Strategies
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Strategy UUID
+      responses:
+        '200':
+          description: Strategy deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Strategy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/strategies/{id}/performance:
+    get:
+      summary: Get strategy performance
+      description: Get performance metrics for a specific strategy
+      tags:
+        - Trading Strategies
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Strategy UUID
+      responses:
+        '200':
+          description: Performance data retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StrategyPerformance'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Strategy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/portfolio:
+    get:
+      summary: Get portfolio
+      description: Get the user's portfolio information
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Portfolio retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Portfolio'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/portfolio/positions:
+    get:
+      summary: Get positions
+      description: Get current trading positions
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Positions retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Position'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/portfolio/history:
+    get:
+      summary: Get portfolio history
+      description: Get portfolio value history
+      tags:
+        - Portfolio
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Portfolio history retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PortfolioHistoryEntry'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/market-data/{symbol}/ticker:
+    get:
+      summary: Get ticker data
+      description: Get current ticker data for a trading symbol
+      tags:
+        - Market Data
+      parameters:
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: Trading symbol (e.g., BTC-USD)
+          example: BTC-USD
+        - in: query
+          name: exchange
+          schema:
+            type: string
+            enum: [coinbase_pro, simulator]
+            default: simulator
+          description: Exchange name
+      responses:
+        '200':
+          description: Ticker data retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Ticker'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/market-data/{symbol}/candles:
+    get:
+      summary: Get candle data
+      description: Get historical candle (OHLCV) data for a trading symbol
+      tags:
+        - Market Data
+      parameters:
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: Trading symbol (e.g., BTC-USD)
+          example: BTC-USD
+        - in: query
+          name: timeFrame
+          schema:
+            type: string
+            enum: [1m, 5m, 15m, 1h, 4h, 1d]
+            default: 1h
+          description: Candle timeframe
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 100
+          description: Number of candles to return
+      responses:
+        '200':
+          description: Candle data retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CandleData'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/market-data/symbols:
+    get:
+      summary: Get supported symbols
+      description: Get list of supported trading symbols
+      tags:
+        - Market Data
+      responses:
+        '200':
+          description: Symbols retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TradingSymbol'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+        details:
+          type: array
+          items:
+            type: object
+          description: Additional error details (for validation errors)
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User UUID
+        email:
+          type: string
+          format: email
+          description: User email address
+        username:
+          type: string
+          description: Username
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    AuthResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                user:
+                  $ref: '#/components/schemas/User'
+                token:
+                  type: string
+                  description: JWT authentication token
+
+    TradingStrategy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Strategy UUID
+        name:
+          type: string
+          description: Strategy name
+        type:
+          $ref: '#/components/schemas/TradingStrategyType'
+        description:
+          type: string
+          nullable: true
+          description: Strategy description
+        symbols:
+          type: array
+          items:
+            type: string
+          description: Trading symbols
+        timeFrame:
+          $ref: '#/components/schemas/TimeFrame'
+        isActive:
+          type: boolean
+          description: Whether the strategy is active
+        parameters:
+          type: object
+          description: Strategy-specific parameters
+        riskParameters:
+          type: object
+          description: Risk management parameters
+        userId:
+          type: string
+          format: uuid
+          description: Owner user UUID
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateTradingStrategy:
+      type: object
+      required:
+        - name
+        - type
+        - symbols
+        - timeFrame
+        - parameters
+        - riskParameters
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Strategy name
+        type:
+          $ref: '#/components/schemas/TradingStrategyType'
+        description:
+          type: string
+          maxLength: 500
+          description: Strategy description
+        symbols:
+          type: array
+          items:
+            type: string
+          description: Trading symbols
+        timeFrame:
+          $ref: '#/components/schemas/TimeFrame'
+        parameters:
+          type: object
+          description: Strategy-specific parameters
+        riskParameters:
+          type: object
+          description: Risk management parameters
+
+    UpdateTradingStrategy:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Strategy name
+        description:
+          type: string
+          maxLength: 500
+          description: Strategy description
+        isActive:
+          type: boolean
+          description: Whether the strategy is active
+        symbols:
+          type: array
+          items:
+            type: string
+          description: Trading symbols
+        parameters:
+          type: object
+          description: Strategy-specific parameters
+        riskParameters:
+          type: object
+          description: Risk management parameters
+
+    TradingStrategyType:
+      type: string
+      enum:
+        - SIMPLE_MOVING_AVERAGE
+        - RSI_OVERSOLD_OVERBOUGHT
+        - MACD_CROSSOVER
+        - BOLLINGER_BANDS_SQUEEZE
+        - MEAN_REVERSION
+        - MOMENTUM
+        - CUSTOM
+
+    TimeFrame:
+      type: string
+      enum:
+        - 1m
+        - 5m
+        - 15m
+        - 30m
+        - 1h
+        - 4h
+        - 12h
+        - 1d
+        - 1w
+        - 1M
+
+    StrategyPerformance:
+      type: object
+      properties:
+        totalSignals:
+          type: integer
+          description: Total number of signals generated
+        executedSignals:
+          type: integer
+          description: Number of executed signals
+        successRate:
+          type: number
+          format: float
+          description: Success rate percentage
+        recentSignals:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradingSignal'
+          description: Recent signals (last 10)
+        recentExecutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StrategyExecution'
+          description: Recent executions (last 10)
+
+    TradingSignal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [BUY, SELL]
+        symbol:
+          type: string
+        price:
+          type: number
+          format: float
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        createdAt:
+          type: string
+          format: date-time
+
+    StrategyExecution:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        signalId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, EXECUTED, FAILED]
+        executedAt:
+          type: string
+          format: date-time
+          nullable: true
+        executedPrice:
+          type: number
+          format: float
+          nullable: true
+
+    Portfolio:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        totalValue:
+          type: number
+          format: float
+          description: Total portfolio value in USD
+        availableBalance:
+          type: number
+          format: float
+          description: Available balance in USD
+        lockedBalance:
+          type: number
+          format: float
+          description: Locked balance in USD
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Balance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        currency:
+          type: string
+          description: Currency code (USD, BTC, ETH, etc.)
+        total:
+          type: number
+          format: float
+          description: Total balance
+        available:
+          type: number
+          format: float
+          description: Available balance
+        locked:
+          type: number
+          format: float
+          description: Locked balance
+
+    Position:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        symbol:
+          type: string
+          description: Trading symbol
+        side:
+          type: string
+          enum: [LONG, SHORT]
+        size:
+          type: number
+          format: float
+          description: Position size
+        entryPrice:
+          type: number
+          format: float
+          description: Entry price
+        currentPrice:
+          type: number
+          format: float
+          description: Current market price
+        unrealizedPnL:
+          type: number
+          format: float
+          description: Unrealized profit/loss
+        realizedPnL:
+          type: number
+          format: float
+          description: Realized profit/loss
+        exchangeConfig:
+          type: object
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+        tradingPair:
+          type: object
+          properties:
+            baseCurrency:
+              type: string
+            quoteCurrency:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    PortfolioHistoryEntry:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        totalValue:
+          type: number
+          format: float
+          description: Portfolio value at this timestamp
+        change:
+          type: number
+          format: float
+          description: Change in value
+        order:
+          type: object
+          properties:
+            symbol:
+              type: string
+            side:
+              type: string
+            size:
+              type: string
+            price:
+              type: string
+
+    Ticker:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Trading symbol
+        price:
+          $ref: '#/components/schemas/Price'
+        bidPrice:
+          $ref: '#/components/schemas/Price'
+        askPrice:
+          $ref: '#/components/schemas/Price'
+        volume24h:
+          $ref: '#/components/schemas/Volume'
+        change24h:
+          type: object
+          properties:
+            value:
+              type: number
+              format: float
+              description: 24h price change percentage
+        high24h:
+          $ref: '#/components/schemas/Price'
+        low24h:
+          $ref: '#/components/schemas/Price'
+        timestamp:
+          type: string
+          format: date-time
+
+    Price:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Price value as string for precision
+        currency:
+          type: string
+          description: Currency code
+
+    Volume:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Volume value as string for precision
+        currency:
+          type: string
+          description: Currency code
+
+    CandleData:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Trading symbol
+        timeFrame:
+          type: string
+          description: Timeframe of candles
+        candles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candle'
+        timestamp:
+          type: string
+          format: date-time
+          description: Data timestamp
+
+    Candle:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Candle timestamp
+        open:
+          $ref: '#/components/schemas/Price'
+        high:
+          $ref: '#/components/schemas/Price'
+        low:
+          $ref: '#/components/schemas/Price'
+        close:
+          $ref: '#/components/schemas/Price'
+        volume:
+          $ref: '#/components/schemas/Volume'
+        timeFrame:
+          type: string
+          description: Candle timeframe
+
+    TradingSymbol:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Trading symbol (e.g., BTC-USD)
+        baseCurrency:
+          type: string
+          description: Base currency code
+        quoteCurrency:
+          type: string
+          description: Quote currency code
+        isActive:
+          type: boolean
+          description: Whether the symbol is currently tradeable
+
+tags:
+  - name: Health
+    description: Server health check
+  - name: Authentication
+    description: User authentication and account management
+  - name: Trading Strategies
+    description: Trading strategy management and performance tracking
+  - name: Portfolio
+    description: Portfolio and position management
+  - name: Market Data
+    description: Real-time and historical market data
