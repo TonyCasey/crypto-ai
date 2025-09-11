@@ -1,0 +1,63 @@
+# Configuration for GitHub Actions labeler
+
+# Frontend changes
+"frontend":
+  - frontend/**/*
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/tailwind.config.*"
+  - "**/vite.config.*"
+
+# Backend changes
+"backend":
+  - backend/**/*
+  - "**/*.prisma"
+
+# Package changes
+"packages":
+  - packages/**/*
+
+# Database changes
+"database":
+  - backend/prisma/**/*
+  - "**/*.prisma"
+  - packages/@cryptobot/database/**/*
+
+# Testing changes
+"testing":
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/jest.config.*"
+  - "**/playwright.config.*"
+  - tests/**/*
+
+# Documentation changes
+"documentation":
+  - "**/*.md"
+  - docs/**/*
+
+# Configuration changes
+"config":
+  - "**/*.json"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.config.*"
+  - ".github/**/*"
+
+# Dependencies
+"dependencies":
+  - "**/package.json"
+  - "**/pnpm-lock.yaml"
+  - "**/package-lock.json"
+
+# CI/CD
+"ci/cd":
+  - ".github/workflows/**/*"
+
+# Infrastructure
+"infrastructure":
+  - "**/*.dockerfile"
+  - "**/Dockerfile"
+  - "**/*.docker*"
+  - "**/heroku.yml"
+  - "**/vercel.json"

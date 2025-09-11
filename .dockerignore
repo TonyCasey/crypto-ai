@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+**/node_modules/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Test files
+**/*.test.*
+**/*.spec.*
+coverage/
+test-results/
+playwright-report/
+
+# Development files
+.tmp/
+logs/
+*.log
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+
+# Temporary files
+debug-*.png
+login-page-screenshot.png
+
+# Package manager files
+package-lock.json
+yarn.lock
+
+# Keep pnpm-lock.yaml as it's needed for installation

@@ -1,0 +1,176 @@
+version: 2
+updates:
+  # Root package.json
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automerge"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Frontend package
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(frontend)"
+      include: "scope"
+    labels:
+      - "frontend"
+      - "dependencies"
+      - "automerge"
+
+  # Backend package
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(backend)"
+      include: "scope"
+    labels:
+      - "backend"
+      - "dependencies"
+      - "automerge"
+
+  # Types package
+  - package-ecosystem: "npm"
+    directory: "/packages/@cryptobot/types"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(types)"
+      include: "scope"
+    labels:
+      - "packages"
+      - "dependencies"
+      - "automerge"
+
+  # Database package
+  - package-ecosystem: "npm"
+    directory: "/packages/@cryptobot/database"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(database)"
+      include: "scope"
+    labels:
+      - "packages"
+      - "database"
+      - "dependencies"
+
+  # Indicators package
+  - package-ecosystem: "npm"
+    directory: "/packages/@cryptobot/indicators"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(indicators)"
+      include: "scope"
+    labels:
+      - "packages"
+      - "dependencies"
+      - "automerge"
+
+  # Exchanges package
+  - package-ecosystem: "npm"
+    directory: "/packages/@cryptobot/exchanges"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(exchanges)"
+      include: "scope"
+    labels:
+      - "packages"
+      - "dependencies"
+
+  # Trading package
+  - package-ecosystem: "npm"
+    directory: "/packages/@cryptobot/trading"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "deps(trading)"
+      include: "scope"
+    labels:
+      - "packages"
+      - "dependencies"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "TonyCasey"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "ci/cd"
+      - "github-actions"
+      - "dependencies"
+      - "automerge"
