@@ -1,7 +1,7 @@
 {
   "name": "cryptobot-backend",
-  "description": "CryptoBot AI Trading Platform Backend",
-  "repository": "https://github.com/TonyCasey/crypto-ai",
+  "description": "CryptoBot Node.js Migration - Backend API Server",
+  "repository": "https://github.com/TonyCasey/cryptobot-nodejs-migration",
   "logo": "https://node-js-sample.herokuapp.com/node.png",
   "keywords": ["node", "express", "heroku", "cryptocurrency", "trading", "ai"],
   "image": "heroku/nodejs",

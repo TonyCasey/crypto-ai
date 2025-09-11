@@ -1,8 +1,8 @@
 {
-  "name": "crypto-ai-monorepo",
+  "name": "cryptobot-nodejs-migration",
   "version": "1.0.0",
   "private": true,
-  "description": "Cryptocurrency AI Trading Platform - Node.js Monorepo",
+  "description": "CryptoBot Node.js Migration - Modern TypeScript implementation of legacy .NET trading bot",
   "workspaces": [
     "frontend",
     "backend",
@@ -50,7 +50,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TonyCasey/crypto-ai.git"
+    "url": "https://github.com/TonyCasey/cryptobot-nodejs-migration.git"
   },
   "author": "Tony Casey",
   "license": "MIT"
