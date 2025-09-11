@@ -9,7 +9,9 @@
     "clean": "rimraf dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "test": "jest"
+    "test": "cd ../../../ && npx jest --testPathPattern=\"packages/@cryptobot/trading\"",
+    "test:watch": "cd ../../../ && npx jest --watch --testPathPattern=\"packages/@cryptobot/trading\"",
+    "test:coverage": "cd ../../../ && npx jest --coverage --testPathPattern=\"packages/@cryptobot/trading\""
   },
   "dependencies": {
     "@cryptobot/types": "file:../types",
